@@ -1,5 +1,4 @@
 name: "Build and Push"
-description: "Build SSR image and push to ECR Repo"
 
 on:
   workflow_call:

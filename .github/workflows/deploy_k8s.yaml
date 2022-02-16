@@ -1,5 +1,4 @@
 name: "Deploy to k8s"
-description: "Build process for SSR landing pages"
 
 on:
   workflow_call:
