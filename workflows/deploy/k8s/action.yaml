@@ -1,0 +1,54 @@
+name: "Deploy to k8s"
+description: "Build process for SSR landing pages"
+
+on:
+  workflow_call:
+
+    inputs:
+      NAMESPACE:
+        required: true
+        description: 'Namespace in the cluster'
+      KUSTOMIZE_OVERLAY:
+        required: true
+        description: 'Path to Kustomize overlay'
+
+jobs:  
+  deploy:
+    runs-on: small-runner
+    needs: [slack_report_start, build]
+
+    steps: 
+      - name: Notify Slack of Deploy
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ env.SLACK_CHANNEL_ID }}
+          message_id: ${{ needs.slack_report_start.outputs.slack_message_id }}
+          status: Running ${{ github.job }} - Deployment ...
+          color: 00FFFF
+        env:
+          SLACK_BOT_TOKEN: ${{ env.SLACK_BOT_TOKEN }} 
+
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Set environment variables
+        run: |
+          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Build tag Substitution Start
+        uses: danielr1996/envsubst-action@1.0.0
+        with:
+          input: ./kube/base/deployment.yaml
+          output: ./kube/base/deployment-tagged.yaml
+
+      - name: Build Tag Substitution Finish
+        run: |
+          cat ./kube/base/deployment-tagged.yaml
+          mv ./kube/base/deployment-tagged.yaml ./kube/base/deployment.yaml
+          
+      - name: Deploy
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.3
+        with:
+          NAMESPACE: ${{ env.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ env.KUSTOMIZE_OVERLAY }}
+
