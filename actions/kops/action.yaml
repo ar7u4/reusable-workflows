@@ -1,0 +1,26 @@
+name: 'Setup KOPS'
+description: 'Setup KOPS, and export kubeconfig file'
+
+inputs:
+  cluster-name:
+    description: 'The name of the cluster'
+    required: true
+  state-store:
+    description: 'Store containing KOPS state - example: s3://foo.bar'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: install kops and export kubeconfig
+      shell: bash
+      run: |
+        echo "Setting up KOPS"
+        curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+        chmod +x ./kops
+        sudo mv ./kops /usr/local/bin/
+        echo "Setting up KUBECTL"
+        curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        kops export kubecfg ${{ cluster-name }} --state=${{ state-store }} --admin
