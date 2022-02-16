@@ -20,6 +20,10 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
+      SLACK_MESSAGE_ID:
+        type: string
+        required: true
+        description: 'ID of the Slack message'
 
 jobs:
   build:
@@ -29,7 +33,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
-          message_id: ${{ needs.slack_report_start.outputs.slack_message_id }}
+          message_id: ${{ env.SLACK_MESSAGE_ID }}
           status: Running ${{ github.job }} - Build ...
           color: 00FFFF
         env:
@@ -100,7 +104,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
-          message_id: ${{ needs.slack_report_start.outputs.slack_message_id }}
+          message_id: ${{ env.SLACK_MESSAGE_ID }}
           status: Success
           color: good
         env:
@@ -116,7 +120,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ env.SLACK_CHANNEL_ID }}
-          message_id: ${{ needs.slack_report_start.outputs.slack_message_id }}
+          message_id: ${{ env.SLACK_MESSAGE_ID }}
           status: Failure
           color: danger
         env:
