@@ -5,9 +5,11 @@ on:
 
     inputs:
       NAMESPACE:
+        type: string
         required: true
         description: 'Namespace in the cluster'
       KUSTOMIZE_OVERLAY:
+        type: string
         required: true
         description: 'Path to Kustomize overlay'
 

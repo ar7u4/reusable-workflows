@@ -5,15 +5,19 @@ on:
 
     inputs:
       SLACK_BOT_TOKEN:
+        type: string
         required: true
         description: 'Token for Slack-bot'
       SLACK_CHANNEL_ID:
+        type: string
         required: true
         description: 'ID of the Slack channel'
       ECR_REPO:
+        type: string
         required: true
         description: 'Elastic Container Repository of the service'
       ECR_CACHE_REPO:
+        type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
 
