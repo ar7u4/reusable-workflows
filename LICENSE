@@ -186,7 +186,11 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
+<<<<<<< HEAD
    Copyright 2022 HTEC Group Inc.
+=======
+   Copyright [yyyy] [name of copyright owner]
+>>>>>>> 57c62ffa2016ebaaf0ddf0af9505744d58c6be6c
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
