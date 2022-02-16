@@ -96,7 +96,7 @@ jobs:
 
   slack_report_success:
     runs-on: small-runner
-    needs: [slack_report_start, build]
+    needs: [build]
     if: success()
 
     steps: 
@@ -112,7 +112,7 @@ jobs:
 
   slack_report_fail:
     runs-on: small-runner
-    needs: [slack_report_start, build]
+    needs: [build]
     if: failure()
 
     steps: 

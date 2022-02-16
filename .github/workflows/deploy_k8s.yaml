@@ -20,7 +20,7 @@ on:
 jobs:  
   deploy:
     runs-on: small-runner
-    needs: [slack_report_start, build]
+    needs: [build]
 
     steps: 
       - name: Notify Slack of Deploy
