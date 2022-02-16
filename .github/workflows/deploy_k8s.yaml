@@ -4,6 +4,18 @@ on:
   workflow_call:
 
     inputs:
+      SLACK_BOT_TOKEN:
+        type: string
+        required: true
+        description: 'Token for Slack-bot'
+      SLACK_CHANNEL_ID:
+        type: string
+        required: true
+        description: 'ID of the Slack channel'
+      SLACK_MESSAGE_ID:
+        type: string
+        required: true
+        description: 'ID of the Slack message'
       NAMESPACE:
         type: string
         required: true
@@ -12,10 +24,6 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
-      SLACK_MESSAGE_ID:
-        type: string
-        required: true
-        description: 'ID of the Slack message'
 
 jobs:  
   deploy:

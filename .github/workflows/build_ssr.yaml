@@ -12,6 +12,10 @@ on:
         type: string
         required: true
         description: 'ID of the Slack channel'
+      SLACK_MESSAGE_ID:
+        type: string
+        required: true
+        description: 'ID of the Slack message'
       ECR_REPO:
         type: string
         required: true
@@ -20,11 +24,6 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      SLACK_MESSAGE_ID:
-        type: string
-        required: true
-        description: 'ID of the Slack message'
-
 jobs:
   build:
     runs-on: small-runner
