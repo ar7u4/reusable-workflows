@@ -47,7 +47,7 @@ jobs:
           mv ./kube/base/deployment-tagged.yaml ./kube/base/deployment.yaml
           
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.3
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.5
         with:
           NAMESPACE: ${{ env.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ env.KUSTOMIZE_OVERLAY }}
