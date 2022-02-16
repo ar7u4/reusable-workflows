@@ -1,11 +1,7 @@
 name: 'Setup KOPS'
-description: 'Setup KOPS, and export kubeconfig file'
+description: 'Setup latest KOPS, and export kubeconfig file'
 
 inputs:
-  kops-version:
-    default: 1.21.1
-    description: Set Kops version
-    required: false
   cluster-name:
     description: 'The name of the cluster'
     required: true
