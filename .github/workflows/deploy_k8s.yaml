@@ -35,15 +35,14 @@ on:
 jobs:  
   deploy:
     runs-on: small-runner
-
-    steps: 
+    steps:
       - name: Notify Slack of Deploy
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Running ${{ github.job }} - Deployment ...
-          color: 00FFFF
+          status: Running ${{ github.job }} - Deploy ...
+          color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
 
