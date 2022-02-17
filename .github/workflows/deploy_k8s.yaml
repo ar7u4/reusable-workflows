@@ -33,12 +33,12 @@ jobs:
       - name: Notify Slack of Deploy
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ env.SLACK_CHANNEL_ID }}
-          message_id: ${{ env.SLACK_MESSAGE_ID }}
+          channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
           status: Running ${{ github.job }} - Deployment ...
           color: 00FFFF
         env:
-          SLACK_BOT_TOKEN: ${{ env.SLACK_BOT_TOKEN }} 
+          SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
 
       - name: Checkout
         uses: actions/checkout@v1
@@ -61,6 +61,6 @@ jobs:
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.6
         with:
-          NAMESPACE: ${{ env.NAMESPACE }}
-          KUSTOMIZE_OVERLAY: ${{ env.KUSTOMIZE_OVERLAY }}
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
