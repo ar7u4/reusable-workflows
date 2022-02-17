@@ -24,6 +24,13 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
 
 jobs:  
   deploy:
