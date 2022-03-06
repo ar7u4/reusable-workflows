@@ -1,4 +1,4 @@
-name: "Deploy to k8s"
+name: "Deploy to Production k8s"
 
 on:
   workflow_call:
@@ -34,7 +34,7 @@ on:
 
 jobs:  
   deploy:
-    runs-on: small-runner
+    runs-on: small-prod-runner
     steps:
       - name: Notify Slack of Deploy
         uses: voxmedia/github-action-slack-notify-build@v1
