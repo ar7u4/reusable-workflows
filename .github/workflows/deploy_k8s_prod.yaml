@@ -24,6 +24,10 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
+      IMAGE_TAG:
+        type: string
+        required: true
+        description: 'Image tag to deploy'
     secrets:
       aws-access-key-id:
         required: true
@@ -36,12 +40,12 @@ jobs:
   deploy:
     runs-on: small-prod-runner
     steps:
-      - name: Notify Slack of Deploy
+      - name: Notify Slack of Production Deploy
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Running ${{ github.job }} - Deploy ...
+          status: Running ${{ github.job }} - Production Deploy ...
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -51,7 +55,7 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "TAG=${{ inputs.IMAGE_TAG }}" >> $GITHUB_ENV
 
       - name: Build tag Substitution Start
         uses: danielr1996/envsubst-action@1.0.0
