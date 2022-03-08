@@ -80,7 +80,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Success
+          status: dev ${{ github.job }} success
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -96,7 +96,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Failure
+          status: dev ${{ github.job }} failure
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 

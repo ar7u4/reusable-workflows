@@ -40,7 +40,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          status: Running ${{ github.job }} image
+          status: Running image ${{ github.job }}
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -114,7 +114,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: "image_tag: ${{ env.TAG }}"
+          status: "Image tag: ${{ env.TAG }}"
           color: warning
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }}
@@ -130,7 +130,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Build and Push Success
+          status: ${{ env.GITHUB_REPOSITORY }} build success
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -146,7 +146,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Failure
+          status: ${{ env.GITHUB_REPOSITORY }} build failure
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
