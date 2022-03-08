@@ -33,6 +33,7 @@ jobs:
     runs-on: small-runner
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-build.outputs.message_id }}
+      TAG: ${{ env.TAG }}
     steps:
       - name: Notify Slack of Build
         id: gh-build
@@ -117,9 +118,6 @@ jobs:
           color: warning
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }}
-
-    outputs:
-      TAG: ${{ env.TAG }}
 
   slack_report_success:
     runs-on: small-runner
