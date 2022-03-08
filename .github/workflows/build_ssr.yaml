@@ -130,7 +130,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: ${{ env.GITHUB_REPOSITORY }} build success
+          status: Service build success
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -146,7 +146,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: ${{ env.GITHUB_REPOSITORY }} build failure
+          status: Service build failure
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
