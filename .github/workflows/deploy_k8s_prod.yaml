@@ -1,4 +1,4 @@
-name: "Deploy to Production k8s"
+name: "Deploy to production k8s"
 
 on:
   workflow_call:
@@ -8,14 +8,10 @@ on:
         type: string
         required: true
         description: 'Token for Slack-bot'
-      SLACK_CHANNEL_ID:
+      SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
-        description: 'ID of the Slack channel'
-      SLACK_MESSAGE_ID:
-        type: string
-        required: true
-        description: 'ID of the Slack message'
+        description: '#gh-deploy-prod ID'
       NAMESPACE:
         type: string
         required: true
@@ -39,13 +35,15 @@ on:
 jobs:  
   deploy:
     runs-on: small-prod-runner
+    outputs:
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-prod.outputs.message_id }}
     steps:
       - name: Notify Slack of Production Deploy
+        id: gh-deploy-prod
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Running ${{ github.job }} - Production Deploy ...
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          status: Running production ${{ github.job }}
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -73,4 +71,37 @@ jobs:
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+
+  slack_report_success:
+    runs-on: small-runner
+    needs: [deploy]
+    if: success()
+
+    steps: 
+      - name: Notify Slack of Success
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.deploy.outputs.slack_message_id }}
+          status: Success
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
+
+  slack_report_fail:
+    runs-on: small-runner
+    needs: [deploy]
+    if: failure()
+
+    steps: 
+      - name: Notify Slack of Failure
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.deploy.outputs.slack_message_id }}
+          status: Failure
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
+
 

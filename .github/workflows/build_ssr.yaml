@@ -8,14 +8,10 @@ on:
         type: string
         required: true
         description: 'Token for Slack-bot'
-      SLACK_CHANNEL_ID:
+      SLACK_BUILD_CHANNEL_ID:
         type: string
         required: true
-        description: 'ID of the Slack channel'
-      SLACK_MESSAGE_ID:
-        type: string
-        required: true
-        description: 'ID of the Slack message'
+        description: '#gh-build - ID'
       ECR_REPO:
         type: string
         required: true
@@ -35,14 +31,16 @@ on:
 jobs:
   build:
     runs-on: small-runner
+    outputs:
+      SLACK_MESSAGE_ID: ${{ steps.gh-build.outputs.message_id }}
     steps:
       - name: Notify Slack of Build
+        id: gh-build
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Running ${{ github.job }} - Build ...
-          color: 00FFFF
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          status: Running ${{ github.job }} image
+          color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
 
@@ -109,6 +107,17 @@ jobs:
           # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
+
+      - name: Notify Slack of Image Tag
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ needs.build.outputs.slack_message_id }}
+          status: IMAGE_TAG - ${{ env.TAG }}
+          color: warning
+        env:
+          SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }}
+
     outputs:
       TAG: ${{ env.TAG }}
 
@@ -121,8 +130,8 @@ jobs:
       - name: Notify Slack of Success
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ needs.build.outputs.slack_message_id }}
           status: Success
           color: good
         env:
@@ -137,8 +146,8 @@ jobs:
       - name: Notify Slack of Failure
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ needs.build.outputs.slack_message_id }}
           status: Failure
           color: danger
         env:
