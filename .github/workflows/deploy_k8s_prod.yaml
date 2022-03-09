@@ -33,7 +33,7 @@ on:
         required: true
 
 jobs:  
-  deploy:
+  deploy_production:
     runs-on: small-prod-runner
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-prod.outputs.message_id }}
@@ -43,7 +43,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
-          status: Deploying Service on Production
+          status: Service Production Deployment Start
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -74,7 +74,7 @@ jobs:
 
   slack_report_success:
     runs-on: small-runner
-    needs: [deploy]
+    needs: [deploy_production]
     if: success()
 
     steps: 
@@ -82,15 +82,15 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Production Deployment Completed
+          message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
+          status: Service Production Deployment Completed
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
 
   slack_report_fail:
     runs-on: small-runner
-    needs: [deploy]
+    needs: [deploy_production]
     if: failure()
 
     steps: 
@@ -98,8 +98,8 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Production Deployment Failed
+          message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
+          status: Service Production Deployment Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
