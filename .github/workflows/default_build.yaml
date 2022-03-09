@@ -29,7 +29,7 @@ on:
         required: true
         
 jobs:
-  build:
+  default_build:
     runs-on: small-runner
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-build.outputs.message_id }}
@@ -40,7 +40,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          status: Building image
+          status: Service Build Start
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -113,7 +113,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.build.outputs.slack_message_id }}
+          message_id: ${{ needs.default_build.outputs.slack_message_id }}
           status: "Image tag: ${{ env.TAG }}"
           color: warning
         env:
@@ -121,32 +121,30 @@ jobs:
 
   slack_report_success:
     runs-on: small-runner
-    needs: [build]
+    needs: [default_build]
     if: success()
-
     steps: 
       - name: Notify Slack of Success
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Service Build Succes
+          message_id: ${{ needs.default_build.outputs.slack_message_id }}
+          status: Service Build Completed
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
 
   slack_report_fail:
     runs-on: small-runner
-    needs: [build]
+    needs: [default_build]
     if: failure()
-
     steps: 
       - name: Notify Slack of Failure
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Service Build Failure
+          message_id: ${{ needs.default_build.outputs.slack_message_id }}
+          status: Service Build Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 

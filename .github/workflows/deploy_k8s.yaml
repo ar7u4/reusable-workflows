@@ -40,7 +40,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Running dev ${{ github.job }}
+          status: Deploying Service on Dev
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -80,7 +80,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Dev Deloyment Success
+          status: Dev Deloyment Completed
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -96,7 +96,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy.outputs.slack_message_id }}
-          status: Dev Deployment Failure
+          status: Dev Deployment Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
