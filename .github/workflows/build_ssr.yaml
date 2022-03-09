@@ -130,7 +130,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Service build success
+          status: Service Build Succes
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -146,7 +146,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ needs.build.outputs.slack_message_id }}
-          status: Service build failure
+          status: Service Build Failure
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
