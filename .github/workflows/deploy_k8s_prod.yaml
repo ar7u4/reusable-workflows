@@ -82,7 +82,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
-          status: ${{ env.TAG }} Production Deployment Completed
+          status: ${{ inputs.IMAGE_TAG }} Production Deployment Completed
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -97,7 +97,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
-          status: ${{ env.TAG }} Production Deployment Failed
+          status: ${{ inputs.IMAGE_TAG }} Production Deployment Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 

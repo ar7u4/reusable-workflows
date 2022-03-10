@@ -45,7 +45,6 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
           status: Deploying ${{ env.TAG }} on Dev
           color: 0037FF
         env:
@@ -79,7 +78,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
+          message_id: ${{ needs.deploy_dev.outputs.SLACK_MESSAGE_ID }}
           status: ${{ env.TAG }} Dev Deployment Completed
           color: good
         env:
@@ -94,7 +93,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_MESSAGE_ID }}
+          message_id: ${{ needs.deploy_dev.outputs.SLACK_MESSAGE_ID }}
           status: ${{ env.TAG }} Dev Deployment Failed
           color: danger
         env:
