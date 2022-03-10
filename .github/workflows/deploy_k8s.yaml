@@ -40,7 +40,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_MESSAGE_ID }}
-          status: Service Dev Deployment Start
+          status: Deploying ${{ env.TAG }} on Dev
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -73,14 +73,13 @@ jobs:
     runs-on: small-runner
     needs: [deploy_dev]
     if: success()
-
     steps: 
       - name: Notify Slack of Success
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: Service Dev Deployment Completed
+          status: ${{ env.TAG }} Dev Deployment Completed
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -89,14 +88,13 @@ jobs:
     runs-on: small-runner
     needs: [deploy_dev]
     if: failure()
-
     steps: 
       - name: Notify Slack of Failure
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: Service Dev Deployment Failed
+          status: ${{ env.TAG }} Dev Deployment Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
