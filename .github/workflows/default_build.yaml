@@ -12,6 +12,10 @@ on:
         type: string
         required: true
         description: '#gh-build - ID'
+      SLACK_BUILD_MESSAGE_ID:
+        type: string
+        required: true
+        description: '#gh-build - Message ID'
       ECR_REPO:
         type: string
         required: true
@@ -32,7 +36,6 @@ jobs:
   default_build:
     runs-on: small-runner
     outputs:
-      SLACK_MESSAGE_ID: ${{ steps.gh-build.outputs.message_id }}
       TAG: ${{ env.TAG }}
     steps:
       - name: Notify Slack of Build
@@ -40,6 +43,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Start
           color: 0037FF
         env:
@@ -109,16 +113,6 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
-      - name: Notify Slack of Image Tag
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.slack_message_id }}
-          status: "Image tag: ${{ env.TAG }}"
-          color: warning
-        env:
-          SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }}
-
   slack_report_success:
     runs-on: small-runner
     needs: [default_build]
@@ -128,7 +122,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.slack_message_id }}
+          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Completed
           color: good
         env:
@@ -143,7 +137,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.slack_message_id }}
+          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Failed
           color: danger
         env:
