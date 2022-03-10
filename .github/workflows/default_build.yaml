@@ -43,7 +43,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Start
           color: 0037FF
         env:
@@ -122,7 +122,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Completed
           color: good
         env:
@@ -137,7 +137,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ needs.default_build.outputs.SLACK_BUILD_MESSAGE_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: Service Build Failed
           color: danger
         env:
