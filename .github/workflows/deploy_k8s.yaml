@@ -38,9 +38,12 @@ jobs:
       - name: Set environment variables
         id: envs 
         run: |
-          sudo apt-get install gettext-base
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+      
+      - name: Install envsubst 
+        run: |
+          apk update && apk add gettext
 
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
