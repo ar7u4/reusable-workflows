@@ -53,16 +53,25 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Build tag Substitution Start
-        uses: danielr1996/envsubst-action@1.0.0
-        with:
-          input: ./kube/base/deployment.yaml
-          output: ./kube/base/deployment-tagged.yaml
 
-      - name: Build Tag Substitution Finish
-        run: |
-          cat ./kube/base/deployment-tagged.yaml
-          mv ./kube/base/deployment-tagged.yaml ./kube/base/deployment.yaml
+      - name: Inject version number into files
+        uses: dominicwatson/github-action-envsubst@v1
+        with:
+          files: '*.yaml'
+          patterns: $TAG
+        env:
+          TAG: ${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
+
+      # - name: Build tag Substitution Start
+      #   uses: danielr1996/envsubst-action@1.0.0
+      #   with:
+      #     input: ./kube/base/deployment.yaml
+      #     output: ./kube/base/deployment-tagged.yaml
+
+      # - name: Build Tag Substitution Finish
+      #   run: |
+      #     cat ./kube/base/deployment-tagged.yaml
+      #     mv ./kube/base/deployment-tagged.yaml ./kube/base/deployment.yaml
           
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.21
