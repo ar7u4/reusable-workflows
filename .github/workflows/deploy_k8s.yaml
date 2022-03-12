@@ -54,10 +54,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Inject version number into files
-        uses: dominicwatson/github-action-envsubst@v1
+      - name: Inject image tag into files
+        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@v1.20
         with:
-          files: '.yaml'
           patterns: $TAG
         env:
           TAG: ${{ env.TAG }}
