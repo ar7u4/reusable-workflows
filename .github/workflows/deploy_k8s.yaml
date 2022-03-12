@@ -43,7 +43,8 @@ jobs:
       
       - name: Install envsubst 
         run: |
-          apk update && apk add gettext
+          sudo apt-get update
+          sudo apt-get install gettext
 
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
