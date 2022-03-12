@@ -57,10 +57,10 @@ jobs:
       - name: Inject version number into files
         uses: dominicwatson/github-action-envsubst@v1
         with:
-          files: '*.yaml'
+          files: '.yaml'
           patterns: $TAG
         env:
-          TAG: ${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
+          TAG: ${{ env.TAG }}
 
       # - name: Build tag Substitution Start
       #   uses: danielr1996/envsubst-action@1.0.0
