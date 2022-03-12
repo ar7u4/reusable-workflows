@@ -38,7 +38,7 @@ jobs:
       - name: Set environment variables
         id: envs 
         run: |
-          apt-get install gettext-base
+          sudo apt-get install gettext-base
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
