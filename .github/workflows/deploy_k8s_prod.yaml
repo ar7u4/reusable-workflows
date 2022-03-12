@@ -55,19 +55,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Build tag Substitution Start
-        uses: danielr1996/envsubst-action@1.0.0
+      - name: Inject image tag into files
+        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@v1.26
         with:
-          input: ./kube/base/deployment.yaml
-          output: ./kube/base/deployment-tagged.yaml
-
-      - name: Build Tag Substitution Finish
-        run: |
-          cat ./kube/base/deployment-tagged.yaml
-          mv ./kube/base/deployment-tagged.yaml ./kube/base/deployment.yaml
+          patterns: $TAG
+        env:
+          TAG: ${{ env.TAG }}
           
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v0.21
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@v1.26
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
