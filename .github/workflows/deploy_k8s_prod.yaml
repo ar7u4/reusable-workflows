@@ -24,6 +24,10 @@ on:
         type: string
         required: true
         description: 'Image tag to deploy'
+      CF_DISTRIBUTION_ID:
+        type: string
+        required: true
+        description: 'CloudFront distribution ID'
     secrets:
       aws-access-key-id:
         required: true
@@ -67,6 +71,16 @@ jobs:
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
+          PATHS: "/*"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+
 
   slack_report_success:
     runs-on: small-runner
