@@ -28,6 +28,10 @@ on:
         type: string
         required: true
         description: 'CloudFront distribution ID'
+      CF_INVALIDATION_PATHS:
+        type: string
+        required: true
+        description: 'CloudFront invalidations paths'
     secrets:
       aws-access-key-id:
         required: true
@@ -74,13 +78,13 @@ jobs:
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
+        if: ${{ inputs.CF_DISTRIBUTION_ID != '' &&  inputs.CF_INVALIDATION_PATHS != '' }}
         env:
           DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
-          PATHS: "/*"
+          PATHS: ${{ inputs.CF_INVALIDATION_PATHS }}
           AWS_REGION: "us-east-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
-
 
   slack_report_success:
     runs-on: small-runner
