@@ -32,10 +32,6 @@ on:
         type: string
         required: true
         description: 'CloudFront invalidations paths'
-      REUSABLE_LATEST_RELEASE:
-        type: string
-        required: true
-        description: 'Latest reusable workflow repo release'
     secrets:
       aws-access-key-id:
         required: true
@@ -68,14 +64,14 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Inject image tag into files
-        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@${{ inputs.REUSABLE_LATEST_RELEASE }}
+        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@$master
         with:
           patterns: $TAG
         env:
           TAG: ${{ env.TAG }}
           
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@${{ inputs.REUSABLE_LATEST_RELEASE }}
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@$master
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
