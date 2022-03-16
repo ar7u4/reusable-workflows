@@ -39,6 +39,8 @@ on:
         required: true
       aws-region:
         required: true
+      gh-token:
+        required: true
 
 jobs:  
   deploy_production:
