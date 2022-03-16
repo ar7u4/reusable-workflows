@@ -66,14 +66,14 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Inject image tag into files
-        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@$master
+        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
         with:
           patterns: $TAG
         env:
           TAG: ${{ env.TAG }}
           
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@$master
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
