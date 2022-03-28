@@ -53,7 +53,7 @@ jobs:
       - name: Set environment variables
         id: envs
         run: |
-          TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7
+          TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
           echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
       
       - name: Install envsubst 
