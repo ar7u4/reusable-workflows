@@ -1,4 +1,4 @@
-name: "Build and Push"
+name: "PR Build and Push"
 
 on:
   workflow_call:
