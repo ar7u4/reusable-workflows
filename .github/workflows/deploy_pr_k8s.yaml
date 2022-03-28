@@ -88,7 +88,7 @@ jobs:
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy-pr@master
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
-          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+          DEPLOYMENT_PATH: ${{ inputs.DEPLOYMENT_PATH }}
 
       - name: Post-deployment tasks
         run: |

@@ -5,7 +5,7 @@ inputs:
   NAMESPACE:
     description: 'Namespace for the service to be deployed at'
     required: true
-  KUSTOMIZE_OVERLAY:
+  DEPLOYMENT_PATH:
     description: 'path to kustomize overlay'
     required: true
 
@@ -21,4 +21,4 @@ runs:
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
         echo "Deploying"
-        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kubectl apply -n ${{ inputs.NAMESPACE }} -f deployment-pr.yaml
+        cd ${{ inputs.DEPLOYMENT_PATH }} && kubectl apply -n ${{ inputs.NAMESPACE }} -f deployment-pr.yaml
