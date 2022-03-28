@@ -1,0 +1,46 @@
+name: "PR Cleanup workflow"
+
+on:
+  workflow_call:
+
+    inputs:
+      SLACK_BOT_TOKEN:
+        type: string
+        required: true
+        description: 'Token for Slack-bot'
+      SLACK_DEV_DEPLOY_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-deploy-dev ID'
+      NAMESPACE:
+        type: string
+        required: true
+        description: 'Namespace in the cluster'
+      DEPLOYMENT_PATH:
+        type: string
+        required: true
+        description: 'Path to Kustomize base'
+      HOSTED_ZONE_ID_INT:
+        type: string
+        required: true
+        description: 'R53 Hosted Zone ID'
+      DOMAIN_INT:
+        type: string
+        required: true
+        description: 'internal dev domain'
+      INT_SXDEVIO_ELB:
+        type: string
+        required: true
+        description: 'internal dev elb'
+
+jobs:
+  pr_cleanup:
+    runs-on: small-runner
+    steps:
+      - name: Run cleanup
+        run: |
+        PR_DNS_INT = ${DELETE_PR}.${DOMAIN_INT})
+        BRANCH_NAME_PR = ${DELETE_PR})
+        
+        kubernetesDeploy deleteResource: 'true', configs: 'kube/deployment-pr.yaml', kubeConfig: [path: ''], kubeconfigId: 'sxdevio', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
+        aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE_ID_INT --change-batch '{"Comment":"Deleting a record set","Changes":[{"Action":"DELETE","ResourceRecordSet":{"Name":"'"${PR_DNS_INT}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${INT_SXDEVIO_ELB}"'"}]}}]}'
