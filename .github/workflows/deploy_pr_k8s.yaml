@@ -48,13 +48,13 @@ jobs:
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
       TAG: ${{ env.TAG }}
+      PR_DNS_INT_FRM: ${{ env.PR_DNS_INT_FRM }}
     steps:
       - name: Set environment variables
         id: envs
         run: |
-          TAG=${GITHUB_REF##*/}-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
-          echo ${{ github.event.number }}
-          echo "TAG=${GITHUB_REF##*/}-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
+          TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7
+          echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
       
       - name: Install envsubst 
         run: |
@@ -92,12 +92,12 @@ jobs:
 
       - name: Post-deployment tasks
         run: |
-          PR_DNS_INT_FRM="${GITHUB_REF##*/}.${{ inputs.DOMAIN_INT }}."
+          PR_DNS_INT_FRM="${{ env.TAG }}.${{ inputs.DOMAIN_INT }}."
           if aws route53 list-resource-record-sets --hosted-zone-id ${{ inputs.HOSTED_ZONE_ID_INT }} --query "ResourceRecordSets[?Name == ${PR_DNS_INT_FRM}]" >/dev/null 2>&1 ; then
             echo "DNS record exists. Skipping"
           else
             echo "DNS Record does not exist. Creating DNS "
-            aws route53 change-resource-record-sets --hosted-zone-id ${{ inputs.HOSTED_ZONE_ID_INT }} --change-batch '{"Comment":"Creating a record set","Changes":[{"Action":"CREATE","ResourceRecordSet":{"Name":"'"${GITHUB_REF##*/}.${{ inputs.DOMAIN_INT }}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${{ inputs.INT_SXDEVIO_ELB }}"'"}]}}]}'
+            aws route53 change-resource-record-sets --hosted-zone-id ${{ inputs.HOSTED_ZONE_ID_INT }} --change-batch '{"Comment":"Creating a record set","Changes":[{"Action":"CREATE","ResourceRecordSet":{"Name":"'"${{ env.TAG }}.${{ inputs.DOMAIN_INT }}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${{ inputs.INT_SXDEVIO_ELB }}"'"}]}}]}'
           fi
 
       - name: Invalidate CloudFront
@@ -120,7 +120,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_pr.outputs.slack_message_id }}
-          status: ${{ needs.deploy_pr.outputs.TAG }} Dev Deployment Completed
+          status: PR deployed on https://${{ needs.deploy_pr.outputs.PR_DNS_INT_FRM }}
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
@@ -135,7 +135,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_pr.outputs.slack_message_id }}
-          status: ${{ needs.deploy_pr.outputs.TAG }} Dev Deployment Failed
+          status: ${{ needs.deploy_pr.outputs.TAG }} PR Deployment Failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ inputs.SLACK_BOT_TOKEN }} 
