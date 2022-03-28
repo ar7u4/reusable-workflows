@@ -97,7 +97,7 @@ jobs:
             echo "DNS record exists. Skipping"
           else
             echo "DNS Record does not exist. Creating DNS "
-            aws route53 change-resource-record-sets --hosted-zone-id ${{ inputs.HOSTED_ZONE_ID_INT }} --change-batch '{"Comment":"Creating a record set","Changes":[{"Action":"CREATE","ResourceRecordSet":{"Name":"'"${GITHUB_REF##*/}.${{ inputs.DOMAIN_INT }}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${{ inputs.INT_SXDEVIO_ELB }"'"}]}}]}'
+            aws route53 change-resource-record-sets --hosted-zone-id ${{ inputs.HOSTED_ZONE_ID_INT }} --change-batch '{"Comment":"Creating a record set","Changes":[{"Action":"CREATE","ResourceRecordSet":{"Name":"'"${GITHUB_REF##*/}.${{ inputs.DOMAIN_INT }}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${{ inputs.INT_SXDEVIO_ELB }}"'"}]}}]}'
           fi
 
       - name: Invalidate CloudFront
