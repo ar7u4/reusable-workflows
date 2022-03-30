@@ -16,6 +16,10 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
+      KUSTOMIZE_BASE:
+        type: string
+        required: true
+        description: 'Path to Kustomize base'
       IMAGE_TAG:
         type: string
         required: true
@@ -70,6 +74,7 @@ jobs:
         uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
         with:
           patterns: $TAG
+          path: $KUSTOMIZE_BASE
         env:
           TAG: ${{ env.TAG }}
           
