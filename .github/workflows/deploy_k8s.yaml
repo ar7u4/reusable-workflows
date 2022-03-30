@@ -24,6 +24,15 @@ on:
         type: string
         required: true
         description: 'CloudFront invalidations paths'
+    secrets:
+      slack-bot-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
 
 jobs:  
   deploy_dev:
@@ -51,7 +60,7 @@ jobs:
           status: Deploying ${{ env.TAG }} on Dev
           color: 0037FF
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Checkout
         uses: actions/checkout@v1
@@ -76,8 +85,8 @@ jobs:
           DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
           PATHS: ${{ inputs.CF_INVALIDATION_PATHS }}
           AWS_REGION: "us-east-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
   slack_report_success:
     runs-on: small-runner
@@ -92,7 +101,7 @@ jobs:
           status: ${{ needs.deploy_dev.outputs.TAG }} Dev Deployment Completed
           color: good
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
   slack_report_fail:
     runs-on: small-runner
@@ -107,4 +116,4 @@ jobs:
           status: ${{ needs.deploy_dev.outputs.TAG }} Dev Deployment Failed
           color: danger
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
