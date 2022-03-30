@@ -1,6 +1,6 @@
 
 name: envsubst
-description: This is an action to go thtough all YAML files in repos ./kube/base folder, and change variables
+description: This is an action to go thtough all YAML files in repos base folder, and change variables
 runs:
   using: 'composite'
   steps:

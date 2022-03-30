@@ -116,7 +116,7 @@ jobs:
 
   slack_report_success:
     runs-on: small-runner
-    needs: [deploy_pr, aws_route53]
+    needs: [deploy_pr]
     if: success()
     steps: 
       - name: Notify Slack of Success
@@ -131,7 +131,7 @@ jobs:
 
   slack_report_fail:
     runs-on: small-runner
-    needs: [deploy_pr, aws_route53]
+    needs: [deploy_pr]
     if: failure()
     steps: 
       - name: Notify Slack of Failure
