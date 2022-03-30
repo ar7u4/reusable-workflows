@@ -1,14 +1,15 @@
-name: 'Deploy PR using kubectl and kustomize'
-description: 'In-cluster deployment'
+name: 'Delete PR using kubectl and kustomize'
+description: 'In-cluster PR deletion'
 
 inputs:
   NAMESPACE:
     description: 'Namespace for the service to be deployed at'
     required: true
-  DEPLOYMENT_PATH:
+  KUSTOMIZE_OVERLAY:
     description: 'path to kustomize overlay'
     required: true
 
+  
 
 runs:
   using: "composite"
@@ -20,5 +21,9 @@ runs:
         curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
+        echo "Installing Kustomize"
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        chmod +x ./kustomize
+        sudo mv ./kustomize /usr/local/bin/
         echo "Deploying"
-        cd ${{ inputs.DEPLOYMENT_PATH }} && kubectl apply -n ${{ inputs.NAMESPACE }} -f deployment-pr.yaml
+        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kustomize build . | kubectl delete -n ${{ inputs.NAMESPACE }} -f -

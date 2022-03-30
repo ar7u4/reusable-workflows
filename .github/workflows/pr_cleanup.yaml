@@ -4,19 +4,11 @@ on:
   workflow_call:
 
     inputs:
-      SLACK_BOT_TOKEN:
-        type: string
-        required: true
-        description: 'Token for Slack-bot'
-      SLACK_DEV_DEPLOY_CHANNEL_ID:
-        type: string
-        required: true
-        description: '#gh-deploy-dev ID'
       NAMESPACE:
         type: string
         required: true
         description: 'Namespace in the cluster'
-      DEPLOYMENT_PATH:
+      KUSTOMIZE_OVERLAY:
         type: string
         required: true
         description: 'Path to Kustomize base'
@@ -32,15 +24,39 @@ on:
         type: string
         required: true
         description: 'internal dev elb'
+    secrets:
+      slack-bot-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
 
 jobs:
   pr_cleanup:
     runs-on: small-runner
     steps:
-      - name: Run cleanup
+
+      - name: Set environment variables
         run: |
-        PR_DNS_INT = ${DELETE_PR}.${DOMAIN_INT})
-        BRANCH_NAME_PR = ${DELETE_PR})
-        
-        kubernetesDeploy deleteResource: 'true', configs: 'kube/deployment-pr.yaml', kubeConfig: [path: ''], kubeconfigId: 'sxdevio', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
-        aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE_ID_INT --change-batch '{"Comment":"Deleting a record set","Changes":[{"Action":"DELETE","ResourceRecordSet":{"Name":"'"${PR_DNS_INT}"'","Type":"CNAME","TTL":300,"ResourceRecords":[{"Value":"'"${INT_SXDEVIO_ELB}"'"}]}}]}'
+          TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
+
+      - name: "Delete PR DNS Record "
+        uses: Roosterfish/aws-route53-record-set-action@master
+        with: 
+          aws_access_key_id: ${{ secrets.aws-access-key-id }}
+          aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
+          aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
+          aws_route53_rr_action: "DELETE"
+          aws_route53_rr_name: "${{ needs.intermediate.outputs.TAG }}"
+          aws_route53_rr_type: "CNAME"
+          aws_route53_rr_ttl: "300"
+          aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
+
+      - name: Delete PR from cluster
+        uses: SwipeStoxGmbH/reusable-workflows/actions/delete@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
