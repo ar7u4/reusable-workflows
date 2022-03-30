@@ -1,13 +1,6 @@
 
 name: envsubst
 description: This is an action to go thtough all YAML files in repos ./kube/base folder, and change variables
-inputs:
-  PATTERNS:
-    description: Restrict the substitution to a strict set of patterns.
-    required: false
-  PATH:
-    description: 'path to kustomize base'
-    required: true
 runs:
   using: 'composite'
   steps:

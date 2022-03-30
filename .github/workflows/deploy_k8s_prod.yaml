@@ -72,9 +72,9 @@ jobs:
 
       - name: Inject image tag into files
         uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
-        with:
-          patterns: $TAG
-          path: $KUSTOMIZE_BASE
+        env:
+          TAG: ${{ env.TAG }}
+          PATH: ${{ inputs.KUSTOMIZE_BASE }}
         env:
           TAG: ${{ env.TAG }}
           

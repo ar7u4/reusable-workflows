@@ -82,17 +82,27 @@ jobs:
 
       - name: Inject image tag into files
         uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
-        with:
-          patterns: $TAG
-          path: $KUSTOMIZE_BASE
         env:
           TAG: ${{ env.TAG }}
+          PATH: ${{ inputs.KUSTOMIZE_BASE }}
 
       - name: Deploy PR
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+
+      - name: "Create PR DNS Record "
+        uses: Roosterfish/aws-route53-record-set-action@master
+        with: 
+          aws_access_key_id: ${{ secrets.aws-access-key-id }}
+          aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
+          aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
+          aws_route53_rr_action: "CREATE"
+          aws_route53_rr_name: "${{ env.TAG }}"
+          aws_route53_rr_type: "CNAME"
+          aws_route53_rr_ttl: "300"
+          aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
