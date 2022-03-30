@@ -25,8 +25,6 @@ on:
         required: true
         description: 'internal dev elb'
     secrets:
-      slack-bot-token:
-        required: true
       aws-access-key-id:
         required: true
       aws-secret-access-key:
