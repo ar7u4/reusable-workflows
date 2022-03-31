@@ -54,11 +54,8 @@ jobs:
         run: |
           TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
           echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
-      
-      - name: Install envsubst 
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install gettext -y
+          PATTERNS="\$TAG"
+          FILES=(${{ inputs.KUSTOMIZE_BASE }}/*)
 
       - name: Install AWS cli
         id: install-aws-cli
@@ -79,13 +76,19 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Inject image tag into files
-        uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
-        with:
-          patterns: $TAG
-          path: ${{ inputs.KUSTOMIZE_BASE }}
-        env:
-          TAG: ${{ env.TAG }}
+      - name: envsubst 
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install gettext -y
+          for FILE in ${{ env.FILES }}; do
+            if [[ -n $PATTERNS ]] ; then
+              envsubst "${{ env.PATTERNS }}" < ${{ env.FILE }} > /tmp/envsubst || exit 1
+            else
+              envsubst < ${{ env.FILE }} > /tmp/envsubst || exit 1
+            fi
+            mv /tmp/envsubst ${{ env.FILE }} || exit 1
+          done
+        shell: bash
 
       - name: Deploy PR
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
