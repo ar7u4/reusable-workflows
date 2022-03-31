@@ -79,12 +79,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-
       - name: Inject image tag into files
         uses: SwipeStoxGmbH/reusable-workflows/actions/envsubst@master
+        with:
+          patterns: $TAG
+          path: ${{ inputs.KUSTOMIZE_BASE }}
         env:
-          PATTERNS: ${{ env.TAG }}
-          PATH: ${{ inputs.KUSTOMIZE_BASE }}
+          TAG: ${{ env.TAG }}
 
       - name: Deploy PR
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master

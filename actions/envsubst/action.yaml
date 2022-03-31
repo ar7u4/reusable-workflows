@@ -5,11 +5,14 @@ inputs:
   patterns:
     description: Restrict the substitution to a strict set of patterns.
     required: false
+  path:
+    description: the path to kube base folder
+    required: false
 runs:
   using: 'composite'
   steps:
     - run: |
-        FILES=(./kube/base/*)
+        FILES=($PATH/*)
         for FILE in $FILES; do
           if [[ -n $PATTERNS ]] ; then
             envsubst "${PATTERNS}" < $FILE > /tmp/envsubst || exit 1
@@ -20,5 +23,5 @@ runs:
         done
       shell: bash
       env:
-        FILES: ${{ inputs.files }}
+        PATH: ${{ inputs.path }}
         PATTERNS: ${{ inputs.patterns }}
