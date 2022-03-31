@@ -12,7 +12,6 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        whereis envsubst
         FILES=($PATH/*)
         for FILE in $FILES; do
           if [[ -n $PATTERNS ]] ; then
