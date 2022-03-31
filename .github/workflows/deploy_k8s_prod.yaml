@@ -52,6 +52,11 @@ jobs:
         run: |
           echo "TAG=${{ inputs.IMAGE_TAG }}" >> $GITHUB_ENV
 
+      - name: Install envsubst 
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install gettext -y          
+
       - name: Notify Slack of Production Deploy
         id: gh-deploy-prod
         uses: voxmedia/github-action-slack-notify-build@v1
