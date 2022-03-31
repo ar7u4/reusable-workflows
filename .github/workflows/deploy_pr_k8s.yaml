@@ -84,7 +84,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
-          FILES=(${{ inputs.KUSTOMIZE_BASE }}/*)
+          FILES=(${{ inputs.KUSTOMIZE_BASE }}/base ${{ inputs.KUSTOMIZE_BASE }}/overlays/dev)
           echo ${FILES[*]}
           echo $PATTERN
           for FILE in ${FILES[@]}; do
