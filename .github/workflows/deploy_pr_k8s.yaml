@@ -96,6 +96,10 @@ jobs:
               cat /tmp/envsubst
             fi
             mv /tmp/envsubst $FILE || exit 1
+            echo ------
+            echo ------
+            echo ------
+            cat $FILE
           done
         env:
           PATTERN: $TAG 
