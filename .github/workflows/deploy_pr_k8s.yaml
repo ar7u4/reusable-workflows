@@ -87,8 +87,8 @@ jobs:
           sudo apt-get install gettext -y
           FILES=(${{ inputs.KUSTOMIZE_BASE }}/*)
           for FILE in $FILES; do
-            if [[ -n ${{ env.PATTERN }} ]] ; then
-              sudo envsubst "${{ env.PATTERN }}" < $FILE > /tmp/envsubst || exit 1
+            if [[ -n ${PATTERN} }} ]] ; then
+              sudo envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
             else
               sudo envsubst < $FILE > /tmp/envsubst || exit 1
             fi
