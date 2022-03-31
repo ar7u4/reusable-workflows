@@ -47,13 +47,13 @@ jobs:
     runs-on: small-runner
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
-      TAG: ${{ env.TAG }}
+      PR_TAG: ${{ env.PR_TAG }}
     steps:
       - name: Set environment variables
         id: envs
         run: |
-          TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
-          echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
+          PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
+          echo "PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
       
       # - name: Install envsubst 
       #   run: |
@@ -100,7 +100,7 @@ jobs:
             cat $FILE
           done
         env:
-          PATTERN: $TAG 
+          PATTERN: $PR_TAG 
 
       - name: Deploy PR
         run: |

@@ -34,7 +34,7 @@ jobs:
   pr_build:
     runs-on: small-runner
     outputs:
-      TAG: ${{ env.TAG }}
+      PR_TAG: ${{ env.PR_TAG }}
     steps:
       - name: Notify Slack of Build
         id: gh-build
@@ -55,7 +55,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "SHORT_COMMIT=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
-          echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
+          echo "PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
  
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -109,8 +109,8 @@ jobs:
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
           # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
+          PR_TAGs: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.PR_TAG }}
 
   slack_report_success:
     runs-on: small-runner
@@ -122,7 +122,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: PR Build Completed ${{ needs.pr_build.outputs.TAG }} 
+          status: PR Build Completed ${{ needs.pr_build.outputs.PR_TAG }} 
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -137,7 +137,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: PR Build Failed ${{ needs.pr_build.outputs.TAG }} 
+          status: PR Build Failed ${{ needs.pr_build.outputs.PR_TAG }} 
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
