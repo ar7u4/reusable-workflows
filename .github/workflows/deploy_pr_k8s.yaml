@@ -54,7 +54,7 @@ jobs:
         run: |
           TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
           echo "TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
-          PATTERN="\$TAG"
+          PATTERN="$TAG"
       
       # - name: Install envsubst 
       #   run: |
