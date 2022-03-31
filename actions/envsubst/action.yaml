@@ -12,10 +12,10 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        FILES=($PATH/*)
+        FILES=(${{ inputs.path }}/*)
         for FILE in $FILES; do
-          if [[ -n $PATTERNS ]] ; then
-            envsubst "${PATTERNS}" < $FILE > /tmp/envsubst || exit 1
+          if [[ -n ${{ inputs.patterns }} ]] ; then
+            envsubst "${{ inputs.patterns }}" < $FILE > /tmp/envsubst || exit 1
           else
             envsubst < $FILE > /tmp/envsubst || exit 1
           fi
