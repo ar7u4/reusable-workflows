@@ -58,6 +58,11 @@ jobs:
           aws_route53_rr_type: "CNAME"
           aws_route53_rr_ttl: "300"
           aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
+          
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
                 
       - name: Inject image tag into files
         run: |
