@@ -113,7 +113,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
-          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} recycled
+          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} closed and recycled.
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
@@ -128,7 +128,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
-          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} recycling failed
+          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} closed. Recycling failed!
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
