@@ -39,6 +39,8 @@ on:
 jobs:
   pr_cleanup:
     runs-on: small-runner
+    outputs:
+      PR_TAG: ${{ env.PR_TAG }}
     steps:
 
       - name: Set environment variables
@@ -52,7 +54,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
           aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
           aws_route53_rr_action: "DELETE"
-          aws_route53_rr_name: "${{ env.PR_TAG }}".int.sxdev.io
+          aws_route53_rr_name: ${{ env.PR_TAG }}.int.sxdev.io
           aws_route53_rr_type: "CNAME"
           aws_route53_rr_ttl: "300"
           aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
