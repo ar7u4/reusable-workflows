@@ -16,7 +16,7 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
-      KUSTOMIZE_BASE:
+      KUSTOMIZE_ROOT:
         type: string
         required: true
         description: 'Path to Kustomize base'
@@ -60,7 +60,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          status: Deploying ${{ env.TAG }} on Dev
+          status: Deploying PR image ${{ env.TAG }} on DEV
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -74,7 +74,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
-          FILES=(${{ inputs.KUSTOMIZE_BASE }}/base/* ${{ inputs.KUSTOMIZE_BASE }}/overlays/dev/*)
+          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/*)
           for FILE in ${FILES[@]}; do
             if [[ -n ${PATTERN} ]] ; then
               envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
@@ -87,17 +87,10 @@ jobs:
           PATTERN: $PR_TAG 
 
       - name: Deploy PR
-        run: |
-          echo "Setting up KUBECTL"
-          curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
-          echo "Installing Kustomize"
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-          chmod +x ./kustomize
-          sudo mv ./kustomize /usr/local/bin/
-          echo "Deploying"
-          cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kustomize build . | kubectl apply -n ${{ inputs.NAMESPACE }} -f -
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: "Create PR DNS Record "
         uses: Roosterfish/aws-route53-record-set-action@master

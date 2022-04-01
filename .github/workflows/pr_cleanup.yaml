@@ -4,6 +4,10 @@ on:
   workflow_call:
 
     inputs:
+      SLACK_DEV_DEPLOY_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-deploy-dev ID'
       NAMESPACE:
         type: string
         required: true
@@ -12,10 +16,10 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
-      KUSTOMIZE_BASE:
+      KUSTOMIZE_ROOT:
         type: string
         required: true
-        description: 'Path to Kustomize base'
+        description: 'Path to Kustomize root'
       HOSTED_ZONE_ID_INT:
         type: string
         required: true
@@ -29,6 +33,8 @@ on:
         required: true
         description: 'internal dev elb'
     secrets:
+      slack-bot-token:
+        required: true
       aws-access-key-id:
         required: true
       aws-secret-access-key:
@@ -41,11 +47,22 @@ jobs:
     runs-on: small-runner
     outputs:
       PR_TAG: ${{ env.PR_TAG }}
+      SLACK_MESSAGE_ID: ${{ steps.gh-cleanup-dev.outputs.message_id }}
     steps:
       - name: Set environment variables
         run: |
           PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
           echo "PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Notify Slack of Cleanup
+        id: gh-cleanup-dev
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          status: PR ${{ env.PR_TAG }} closed. Recycling...
+          color: warning
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: "Delete PR DNS Record "
         uses: Roosterfish/aws-route53-record-set-action@master
@@ -68,7 +85,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
-          FILES=(${{ inputs.KUSTOMIZE_BASE }}/base/* ${{ inputs.KUSTOMIZE_BASE }}/overlays/dev/*)
+          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/*)
           for FILE in ${FILES[@]}; do
             if [[ -n ${PATTERN} ]] ; then
               envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
@@ -85,3 +102,33 @@ jobs:
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+
+  slack_report_success:
+    runs-on: small-runner
+    needs: [pr_cleanup]
+    if: success()
+    steps: 
+      - name: Notify Slack of Success
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
+          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} recycled
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+  slack_report_fail:
+    runs-on: small-runner
+    needs: [pr_cleanup]
+    if: failure()
+    steps: 
+      - name: Notify Slack of Failure
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
+          status: PR ${{ needs.pr_cleanup.outputs.PR_TAG }} recycling failed
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 

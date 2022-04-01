@@ -16,7 +16,7 @@ on:
         type: string
         required: true
         description: 'Path to Kustomize overlay'
-      KUSTOMIZE_BASE:
+      KUSTOMIZE_ROOT:
         type: string
         required: true
         description: 'Path to Kustomize base'
@@ -56,7 +56,7 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          status: Deploying ${{ env.TAG }} on Dev
+          status: Deploying image ${{ env.TAG }} on DEV
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -68,7 +68,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
-          FILES=(${{ inputs.KUSTOMIZE_BASE }}/base/* ${{ inputs.KUSTOMIZE_BASE }}/overlays/dev/*)
+          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/*)
           for FILE in ${FILES[@]}; do
             if [[ -n ${PATTERN} ]] ; then
               envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
@@ -106,7 +106,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: ${{ needs.deploy_dev.outputs.TAG }} Dev Deployment Completed
+          status: Image ${{ needs.deploy_dev.outputs.TAG }} deployed on DEV
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
@@ -121,7 +121,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: ${{ needs.deploy_dev.outputs.TAG }} Dev Deployment Failed
+          status: Image ${{ needs.deploy_dev.outputs.TAG }} DEV deployment failed
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
