@@ -90,7 +90,7 @@ jobs:
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
-        if: ${{ inputs.CF_DISTRIBUTION_ID != '' &&  inputs.CF_INVALIDATION_PATHS != '' }}
+        if: ${{ inputs.CF_DISTRIBUTION_ID != '' && inputs.CF_INVALIDATION_PATHS != '' }}
         env:
           DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
           PATHS: ${{ inputs.CF_INVALIDATION_PATHS }}
