@@ -42,10 +42,10 @@ jobs:
     outputs:
       PR_TAG: ${{ env.PR_TAG }}
     steps:
-
       - name: Set environment variables
         run: |
           PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
+          echo "PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
 
       - name: "Delete PR DNS Record "
         uses: Roosterfish/aws-route53-record-set-action@master
