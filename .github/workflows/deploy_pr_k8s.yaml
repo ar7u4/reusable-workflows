@@ -54,16 +54,6 @@ jobs:
         run: |
           PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`
           echo "PR_TAG=pr-`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> $GITHUB_ENV
-      
-      # - name: Install envsubst 
-      #   run: |
-      #     sudo apt-get update -y
-      #     sudo apt-get install gettext -y
-      #     envsubst
-
-      # - name: Install AWS cli
-      #   id: install-aws-cli
-      #   uses: unfor19/install-aws-cli-action@master
 
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
@@ -116,12 +106,10 @@ jobs:
           aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
           aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
           aws_route53_rr_action: "CREATE"
-          aws_route53_rr_name: "${PR_TAG}"
+          aws_route53_rr_name: ${{ env.PR_TAG }}
           aws_route53_rr_type: "CNAME"
           aws_route53_rr_ttl: "300"
           aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
-        env:
-          PR_TAG: ${{ env.PR_TAG }}
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
