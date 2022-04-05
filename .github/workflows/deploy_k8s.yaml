@@ -87,7 +87,7 @@ jobs:
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@v2
+        uses: chetan/invalidate-cloudfront-action@v1
         if: ${{ inputs.CF_DISTRIBUTION_ID != '' && inputs.CF_INVALIDATION_PATHS != '' }}
         env:
           DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
