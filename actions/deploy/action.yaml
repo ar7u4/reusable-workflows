@@ -9,8 +9,6 @@ inputs:
     description: 'path to kustomize overlay'
     required: true
 
-  
-
 runs:
   using: "composite"
   steps:

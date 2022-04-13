@@ -1,0 +1,28 @@
+name: 'Clean and Assembly'
+description: 'Creating artifact'
+
+inputs:
+  SCALA_VERSION:
+    description: 'Version of the scala image'
+    required: true
+  SCALA_IMAGE:
+    description: 'Scala image'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: pull scala image
+      shell: bash
+      run: |
+        docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
+
+    - name: run container
+      shell: bash
+      run: |
+        docker run --rm -i \
+        -u root \
+        -v $HOME/.ivy2:/root/.ivy2 \
+        -v $HOME/.sbt:/root/.sbt \
+        -v target:target
+        '/root/sbt/bin/sbt clean assembly'
