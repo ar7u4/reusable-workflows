@@ -1,5 +1,6 @@
 name: envsubst
 description: This is an action to go thtough all YAML files in repos ./kube/base folder, and change variables
+
 inputs:
   patterns:
     description: Restrict the substitution to a strict set of patterns.
@@ -7,6 +8,7 @@ inputs:
   path:
     description: the path to kube base folder
     required: false
+
 runs:
   using: 'composite'
   steps:
