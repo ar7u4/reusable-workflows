@@ -85,7 +85,7 @@ jobs:
               >&2 echo ${output}
             fi
           fi
-        shell: bash
+        shell: /bin/bash
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
