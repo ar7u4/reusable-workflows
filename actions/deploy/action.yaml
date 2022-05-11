@@ -24,4 +24,5 @@ runs:
         chmod +x ./kustomize
         sudo mv ./kustomize /usr/local/bin/
         echo "Deploying"
-        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kustomize build . | [  -z "${{ inputs.NAMESPACE }}" ] && kubectl apply -f - || kubectl apply -n ${{ inputs.NAMESPACE }} -f -
+        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kustomize build . | kubectl apply -n ${{ inputs.NAMESPACE }} -f -
+
