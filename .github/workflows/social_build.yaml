@@ -100,11 +100,11 @@ jobs:
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
 
-      - name: Clean and Assembly 
-        uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
-        with:
-          SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
-          SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
+      # - name: Clean and Assembly 
+      #   uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
+      #   with:
+      #     SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
+      #     SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
