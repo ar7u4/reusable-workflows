@@ -106,7 +106,6 @@ jobs:
           SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
           SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
 
-
       - name: Set up Docker Context for Buildx
         id: buildx-context
         run: |
