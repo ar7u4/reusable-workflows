@@ -24,6 +24,6 @@ runs:
         -u root \
         -v $HOME/.ivy2:/root/.ivy2 \
         -v $HOME/.sbt:/root/.sbt \
-        -v ./target:./target \
+        -v $HOME/target:/root/target \
         ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
         '/root/sbt/bin/sbt clean assembly'
