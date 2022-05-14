@@ -26,4 +26,4 @@ runs:
         -v $HOME/.sbt:/root/.sbt \
         -v $HOME/target:/root/target \
         ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
-        '/root/sbt/bin/sbt clean assembly'
+        /root/sbt/bin/sbt clean assembly
