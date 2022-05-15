@@ -8,6 +8,12 @@ inputs:
   SCALA_IMAGE:
     description: 'Scala image'
     required: true
+  aws-access-key-id: 
+    description: 'AWS ACCESS KEY ID'
+    required: true
+  aws-secret-access-key: 
+    description: 'AWS SECRET ACCESS KEY'
+    required: true
 
 runs:
   using: "composite"
@@ -21,9 +27,10 @@ runs:
       shell: bash
       run: |
         docker run --rm -i \
+        -e AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }} \
+        -e AWS_REGION=us-east-1 \
         -u root \
-        -v $HOME/.ivy2:/root/.ivy2 \
-        -v $HOME/.sbt:/root/.sbt \
-        -v $HOME/target:/root/target \
+        -v $PROJECT:/opt/tmp \
         ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
-        /root/sbt/bin/sbt clean assembly
+        bash -c "cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
