@@ -121,8 +121,8 @@ jobs:
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
           -e AWS_REGION=us-east-1 \
           -u root \
-          -v $pwd:/opt/tmp \
-          -v $pwd/target:/root/target \
+          -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
+          -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api/target:/root/target \
           ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
           bash -c "cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
 
