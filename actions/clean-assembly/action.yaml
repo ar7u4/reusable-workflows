@@ -31,7 +31,7 @@ runs:
         -e AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }} \
         -e AWS_REGION=us-east-1 \
         -u root \
-        -v $WORKDIR:/opt/tmp \
-        -v $WORKDIR/target:/root/target \
+        -v 'pwd':/opt/tmp \
+        -v 'pwd'/target:/root/target \
         ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
         bash -c "cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
