@@ -100,13 +100,31 @@ jobs:
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
 
-      - name: Clean and Assembly 
-        uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
-        with:
-          SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
-          SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+      # - name: Clean and Assembly 
+      #   uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
+      #   with:
+      #     SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
+      #     SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
+      #     aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      #     aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+      - name: pull scala image
+        shell: bash
+        run: |
+          docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
+
+      - name: run container
+        shell: bash
+        run: |
+          docker run --rm -i \
+          -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
+          -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
+          -e AWS_REGION=us-east-1 \
+          -u root \
+          -v $pwd:/opt/tmp \
+          -v $pwd/target:/root/target \
+          ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
+          bash -c "cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
