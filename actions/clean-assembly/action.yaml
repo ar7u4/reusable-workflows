@@ -24,7 +24,7 @@ runs:
         docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
 
     - name: run container
-      shell: bash
+      shell: bash {0}
       run: |
         docker run --rm -i \
         -e AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} \

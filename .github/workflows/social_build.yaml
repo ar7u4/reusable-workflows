@@ -111,7 +111,7 @@ jobs:
 
 
       - name: Clean and Assembly 
-        shell: bash
+        shell:  bash {0}
         run: |
           docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
           docker run --rm -i \
