@@ -125,17 +125,17 @@ jobs:
           ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
           bash -c "rm -rf /root/project | cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
 
-      - name: Set up Docker Context for Buildx
-        id: buildx-context
-        run: |
-          docker context create builders
+      # - name: Set up Docker Context for Buildx
+      #   id: buildx-context
+      #   run: |
+      #     docker context create builders
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          version: latest
-          endpoint: builders
+      # - name: Set up Docker Buildx
+      #   id: buildx
+      #   uses: docker/setup-buildx-action@v1
+      #   with:
+      #     version: latest
+      #     endpoint: builders
 
       - name: Build and push image
         uses: docker/build-push-action@v3
