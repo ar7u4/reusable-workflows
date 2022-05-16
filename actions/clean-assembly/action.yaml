@@ -27,8 +27,8 @@ runs:
       shell: bash
       run: |
         docker run --rm -i \
-        -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
-        -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
+        -e AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }} \
         -e AWS_REGION=us-east-1 \
         -u root \
         -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
