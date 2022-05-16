@@ -113,14 +113,13 @@ jobs:
       - name: Clean and Assembly
         shell:  bash {0}
         run: |
-          docker system prune -a --volumes -f
           docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
           docker run --rm -i \
           -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
           -e AWS_REGION=us-east-1 \
           -u root \
-          -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
+          --rm -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
           -v /runner/_work/swipestox-activity-feed-api/target:/root/target \
           ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
           bash -c "rm -rf /root/project | cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
