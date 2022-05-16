@@ -110,9 +110,10 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
 
-      - name: Clean and Assembly 
+      - name: Clean and Assembly
         shell:  bash {0}
         run: |
+          docker system prune -a
           docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
           docker run --rm -i \
           -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
