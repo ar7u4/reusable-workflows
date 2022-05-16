@@ -100,29 +100,29 @@ jobs:
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
 
-      # Moved from composite action because of the folder context issues
-      # - name: Clean and Assembly 
-      #   uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
-      #   with:
-      #     SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
-      #     SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
-      #     aws-access-key-id: ${{ secrets.aws-access-key-id }}
-      #     aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
-
-
+      Moved from composite action because of the folder context issues
       - name: Clean and Assembly 
-        shell: bash
-        run: |
-          docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
-          docker run --rm -i \
-          -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
-          -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
-          -e AWS_REGION=us-east-1 \
-          -u root \
-          -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
-          -v /runner/_work/swipestox-activity-feed-api/target:/root/target \
-          ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
-          bash -c "rm -rf /root/project | cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
+        uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
+        with:
+          SCALA_IMAGE: ${{ inputs.SCALA_IMAGE }}
+          SCALA_VERSION: ${{ inputs.SCALA_VERSION }}
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+
+      # - name: Clean and Assembly 
+      #   shell: bash
+      #   run: |
+      #     docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
+      #     docker run --rm -i \
+      #     -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
+      #     -e AWS_SECRET_ACCESS_KEY=${{ secrets.aws-secret-access-key }} \
+      #     -e AWS_REGION=us-east-1 \
+      #     -u root \
+      #     -v /runner/_work/swipestox-activity-feed-api/swipestox-activity-feed-api:/opt/tmp \
+      #     -v /runner/_work/swipestox-activity-feed-api/target:/root/target \
+      #     ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }} \
+      #     bash -c "rm -rf /root/project | cp -R /opt/tmp/. /root/ | /root/sbt/bin/sbt clean assembly"
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
@@ -140,7 +140,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile_gha
           push: true
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
