@@ -113,7 +113,7 @@ jobs:
       - name: Clean and Assembly
         shell:  bash {0}
         run: |
-          docker system prune -a --volumes
+          docker system prune -a --volumes -f
           docker pull ${{ inputs.SCALA_IMAGE }}:${{ inputs.SCALA_VERSION }}
           docker run --rm -i \
           -e AWS_ACCESS_KEY_ID=${{ secrets.aws-access-key-id }} \
