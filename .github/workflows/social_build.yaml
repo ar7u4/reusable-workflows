@@ -100,7 +100,7 @@ jobs:
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
 
-      Moved from composite action because of the folder context issues
+      # Moved from composite action because of the folder context issues
       - name: Clean and Assembly 
         uses: SwipeStoxGmbH/reusable-workflows/actions/clean-assembly@master
         with:
