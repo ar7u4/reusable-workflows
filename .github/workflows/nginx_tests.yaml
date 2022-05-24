@@ -1,0 +1,103 @@
+name: 'NGINX conf test'
+
+on:
+  workflow_call:
+
+    inputs:
+      SLACK_BUILD_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-build - ID'
+      SLACK_BUILD_MESSAGE_ID:
+        type: string
+        required: true
+        description: '#gh-build - Message ID'
+      KUSTOMIZE_ROOT:
+        type: string
+        required: true
+        description: 'Path to Kustomize base'
+      NGINX_IMAGE:
+        type: string
+        required: true
+        description: 'NGINX Image'
+    secrets:
+      slack-bot-token:
+        required: true
+
+
+jobs:
+  nginx_test:
+    runs-on: small-runner
+    steps:
+    - name: Notify Slack of Build
+      id: gh-build
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+        message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+        status: Testing NGINX Config
+        color: B14736
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+    - name: Set dev configuration file
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml' > dev-nginx.conf
+
+    - name: Set production configuration file
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml' > production-nginx.conf
+
+    - name: Running tests
+      shell:  bash {0}
+      run: |
+        result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test -v ${WORKSPACE}/dev-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_prod=$(docker run --rm -t -a stdout --name prod-nginx-test -v production-nginx.conf:usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+
+        # Look for the word successful and count the lines that have it
+        successful_dev=$(echo $result_dev | grep successful | wc -l)
+        successful_prod=$(echo $result_prod | grep successful | wc -l)
+
+        if [ $successful_dev = 0]; then
+          echo FAILED
+          echo "$result_dev"
+          exit 1
+        elif [ $successful_prod = 0]; then
+          echo FAILED
+          echo "$result_prod"
+          exit 1
+        else
+          echo SUCCESS
+        fi
+
+  report_success:
+    runs-on: small-runner
+    needs: [nginx_test]
+    if: success()
+    steps: 
+      - name: Notify Slack of Success
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: NGINX test passed
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+  report_fail:
+    runs-on: small-runner
+    needs: [nginx_test]
+    if: failure()
+    steps: 
+      - name: Notify Slack of Failure
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: NGINX test failed
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
