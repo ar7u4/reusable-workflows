@@ -48,15 +48,6 @@ jobs:
           kube/overlays/production/configmap.yaml
           kube/overlays/dev/configmap.yaml
 
-    - name: Verify config files change
-      if: steps.changed_config_files.outputs.files_changed == 'true'
-      uses: tj-actions/verify-changed-files@v5.5
-      id: changed_config_files
-      with:
-        files: |
-          kube/overlays/production/configmap.yaml
-          kube/overlays/dev/configmap.yaml
-
     - name: Set dev configuration file
       if: steps.changed_config_files.outputs.files_changed == 'true'
       uses: mikefarah/yq@master
