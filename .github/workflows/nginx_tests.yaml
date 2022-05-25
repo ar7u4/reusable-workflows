@@ -29,7 +29,7 @@ jobs:
   nginx_test:
     runs-on: small-runner
     steps:
-    - name: Notify Slack of Build
+    - name: Notify Slack of Test
       id: gh-build
       uses: voxmedia/github-action-slack-notify-build@v1
       with:
@@ -40,17 +40,37 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
+    - name: Verify config files change
+      uses: tj-actions/verify-changed-files@v5.5
+      id: changed_config_files
+      with:
+        files: |
+          kube/overlays/production/configmap.yaml
+          kube/overlays/dev/configmap.yaml
+
+    - name: Verify config files change
+      if: steps.changed_config_files.outputs.files_changed == 'true'
+      uses: tj-actions/verify-changed-files@v5.5
+      id: changed_config_files
+      with:
+        files: |
+          kube/overlays/production/configmap.yaml
+          kube/overlays/dev/configmap.yaml
+
     - name: Set dev configuration file
+      if: steps.changed_config_files.outputs.files_changed == 'true'
       uses: mikefarah/yq@master
       with:
         cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml' > dev-nginx.conf
 
     - name: Set production configuration file
+      if: steps.changed_config_files.outputs.files_changed == 'true'
       uses: mikefarah/yq@master
       with:
         cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml' > production-nginx.conf
 
     - name: Running tests
+      if: steps.changed_config_files.outputs.files_changed == 'true'
       shell:  bash {0}
       run: |
         result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test -v ${WORKSPACE}/dev-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
