@@ -5,11 +5,9 @@ on:
 
     inputs:      
       BRANCH:
-        type: choice
+        type: string
         required: false
-        options:
-        - canary
-        description: Canary deployment
+        description: Branch deployment
       SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
@@ -93,7 +91,7 @@ jobs:
 
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: ${{ inputs.BRANCH }} == ''
+        if: ${{ inputs.BRANCH }} != 'canary'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
