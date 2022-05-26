@@ -45,11 +45,16 @@ jobs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
       TAG: ${{ env.TAG }}
     steps:
-      - name: Set environment variables
+      - name: Extract TAG
         id: envs 
         run: |
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Extract branch name
+        shell: bash
+        id: extract_branch
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
 
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
@@ -85,8 +90,17 @@ jobs:
           
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        if: steps.extract_branch.outputs.branch == 'master'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+          
+      - name: Deploy Canary
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        if: steps.extract_branch.outputs.branch == 'canary'
+        with:
+          # Override NAMESPACE with the branch name
+          NAMESPACE: ${{ steps.extract_branch.outputs.branch}}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
