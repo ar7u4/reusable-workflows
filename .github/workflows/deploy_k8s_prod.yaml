@@ -3,7 +3,13 @@ name: "Deploy to production k8s"
 on:
   workflow_call:
 
-    inputs:
+    inputs:      
+      BRANCH:
+        type: choice
+        required: false
+        options:
+        - canary
+        description: Canary deployment
       SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
@@ -14,7 +20,7 @@ on:
         description: 'Namespace in the cluster'
       KUSTOMIZE_OVERLAY:
         type: string
-        required: true
+        required: true 
         description: 'Path to Kustomize overlay'
       KUSTOMIZE_ROOT:
         type: string
@@ -84,11 +90,20 @@ jobs:
           done
         env:
           PATTERN: $TAG
-          
+
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        if: ${{ inputs.BRANCH }} == ''
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+          
+      # Deploy to namespace defined as the calling parameter
+      - name: Deploy Canary
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        if: ${{ inputs.BRANCH }} == 'canary'
+        with:
+          NAMESPACE: ${{ inputs.BRANCH }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront

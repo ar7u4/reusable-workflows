@@ -88,19 +88,20 @@ jobs:
         env:
           PATTERN: $TAG 
           
+      # Deploy the branch to the namespace defined in the resource YAMLs
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: steps.extract_branch.outputs.branch == 'master'
+        if: steps.extract_branch.outputs.branch == 'master' || steps.extract_branch.outputs.branch == 'hotfix-**'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
           
+      # Deploy to namespace defined as the triggering branch
       - name: Deploy Canary
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
         if: steps.extract_branch.outputs.branch == 'canary'
         with:
-          # Override NAMESPACE with the branch name
-          NAMESPACE: ${{ steps.extract_branch.outputs.branch}}
+          NAMESPACE: ${{ steps.extract_branch.outputs.branch }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
