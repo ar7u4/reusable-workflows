@@ -4,10 +4,10 @@ on:
   workflow_call:
 
     inputs:      
-      BRANCH:
+      DEPLOYMENT:
         type: string
         required: false
-        description: Branch deployment
+        description: Deployment type
       SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
@@ -91,7 +91,7 @@ jobs:
 
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: ${{ inputs.BRANCH }} != 'canary'
+        if: ${{ inputs.DEPLOYMENT }} != 'canary'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
@@ -99,9 +99,9 @@ jobs:
       # Deploy to namespace defined as the calling parameter
       - name: Deploy Canary
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: ${{ inputs.BRANCH }} == 'canary'
+        if: ${{ inputs.DEPLOYMENT }} == 'canary'
         with:
-          NAMESPACE: ${{ inputs.BRANCH }}
+          NAMESPACE: ${{ inputs.DEPLOYMENT }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
