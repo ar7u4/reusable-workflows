@@ -51,6 +51,11 @@ jobs:
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
+      - name: Extract branch name
+        shell: bash
+        id: extract_branch
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
+
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
         uses: voxmedia/github-action-slack-notify-build@v1
@@ -86,6 +91,7 @@ jobs:
       # Deploy the branch to the namespace defined in the resource YAMLs
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        if: steps.extract_branch.outputs.branch == 'master' || steps.extract_branch.outputs.branch == 'hotfix-**'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
