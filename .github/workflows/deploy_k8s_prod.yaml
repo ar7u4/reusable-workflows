@@ -4,10 +4,10 @@ on:
   workflow_call:
 
     inputs:      
-      DEPLOYMENT:
-        type: string
-        required: false
-        description: Deployment type
+      # DEPLOYMENT:
+      #   type: string
+      #   required: false
+      #   description: Deployment type
       SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
@@ -90,19 +90,19 @@ jobs:
           PATTERN: $TAG
 
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: ${{ inputs.DEPLOYMENT }} != 'canary'
+        #uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        # if: ${{ inputs.DEPLOYMENT }} != 'canary'
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
           
-      # Deploy to namespace defined as the calling parameter
-      - name: Deploy Canary
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: ${{ inputs.DEPLOYMENT }} == 'canary'
-        with:
-          NAMESPACE: ${{ inputs.DEPLOYMENT }}
-          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+      # # Deploy to namespace defined as the calling parameter
+      # - name: Deploy Canary
+      #   uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+      #   if: ${{ inputs.DEPLOYMENT }} == 'canary'
+      #   with:
+      #     NAMESPACE: ${{ inputs.DEPLOYMENT }}
+      #     KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v1
