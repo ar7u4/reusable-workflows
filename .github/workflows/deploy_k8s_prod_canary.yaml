@@ -1,25 +1,29 @@
-name: "Deploy to dev k8s"
+name: "Deploy to production k8s"
 
 on:
   workflow_call:
 
     inputs:
-      SLACK_DEV_DEPLOY_CHANNEL_ID:
+      SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
-        description: '#gh-deploy-dev ID'
+        description: '#gh-deploy-prod ID'
       NAMESPACE:
         type: string
         required: true
         description: 'Namespace in the cluster'
-      KUSTOMIZE_OVERLAY:
+      KUSTOMIZE_CANARY_OVERLAY:
         type: string
-        required: true
+        required: true 
         description: 'Path to Kustomize overlay'
       KUSTOMIZE_ROOT:
         type: string
         required: true
-        description: 'Path to Kustomize base'
+        description: 'Path to Kustomize root'
+      IMAGE_TAG:
+        type: string
+        required: true
+        description: 'Image tag to deploy'
       CF_DISTRIBUTION_ID:
         type: string
         required: true
@@ -39,24 +43,22 @@ on:
         required: true
 
 jobs:  
-  deploy_dev:
-    runs-on: small-runner
+  deploy_production:
+    runs-on: small-prod-runner
     outputs:
-      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
-      TAG: ${{ env.TAG }}
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-prod.outputs.message_id }}
     steps:
-      - name: Extract TAG
-        id: envs 
+      - name: Set environment variables
         run: |
-          TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
-          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          TAG=${{ inputs.IMAGE_TAG }}
+          echo "TAG=${{ inputs.IMAGE_TAG }}" >> $GITHUB_ENV      
 
-      - name: Notify Slack of Deploy
-        id: gh-deploy-dev
+      - name: Notify Slack of Production Deploy
+        id: gh-deploy-prod
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          status: Deploying image ${{ env.TAG }} on DEV
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          status: Deploying image ${{ inputs.IMAGE_TAG }} on PROD
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -71,7 +73,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
-          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/*)
+          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/*)
           for FILE in ${FILES[@]}; do
             if [[ -n ${PATTERN} ]] ; then
               envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
@@ -81,14 +83,13 @@ jobs:
             mv /tmp/envsubst $FILE || exit 1
           done
         env:
-          PATTERN: $TAG 
+          PATTERN: $TAG
 
-      # Deploy the branch to the namespace defined in the resource YAMLs
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
-          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_CANARY_OVERLAY }}
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v1
@@ -102,30 +103,32 @@ jobs:
 
   slack_report_success:
     runs-on: small-runner
-    needs: [deploy_dev]
+    needs: [deploy_production]
     if: success()
     steps: 
       - name: Notify Slack of Success
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: Image ${{ needs.deploy_dev.outputs.TAG }} deployed on DEV
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
+          status: Image ${{ inputs.IMAGE_TAG }} deployed on PROD
           color: good
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
   slack_report_fail:
     runs-on: small-runner
-    needs: [deploy_dev]
+    needs: [deploy_production]
     if: failure()
     steps: 
       - name: Notify Slack of Failure
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
-          status: Image ${{ needs.deploy_dev.outputs.TAG }} DEV deployment failed
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
+          status: Image ${{ inputs.IMAGE_TAG }} PROD deployment failed
           color: danger
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+
