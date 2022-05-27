@@ -97,12 +97,12 @@ jobs:
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
           
       # Deploy to namespace defined as the triggering branch
-      - name: Deploy Canary
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
-        if: steps.extract_branch.outputs.branch == 'canary'
-        with:
-          NAMESPACE: ${{ steps.extract_branch.outputs.branch }}
-          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+      # - name: Deploy Canary
+      #   uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+      #   if: steps.extract_branch.outputs.branch == 'canary'
+      #   with:
+      #     NAMESPACE: ${{ steps.extract_branch.outputs.branch }}
+      #     KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v1
