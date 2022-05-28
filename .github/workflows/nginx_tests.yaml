@@ -47,27 +47,27 @@ jobs:
     - name: Set dev configuration file
       uses: mikefarah/yq@master
       with:
-        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml' > dev-nginx.conf
+        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml' > dev-nginx.conf
 
     - name: Set dev canary configuration file
       uses: mikefarah/yq@master
       with:
-        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev-canary/configmap.yaml' > dev-canary-nginx.conf
+        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev-canary/configmap.yaml' > dev-canary-nginx.conf
 
     - name: Set production configuration file
       uses: mikefarah/yq@master
       with:
-        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml' > production-nginx.conf
+        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml' > production-nginx.conf
 
     - name: Set production canary configuration file
       uses: mikefarah/yq@master
       with:
-        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml' > production-canary-nginx.conf
+        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml' > production-canary-nginx.conf
 
     - name: Set production webinar configuration file
       uses: mikefarah/yq@master
       with:
-        cmd: yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml' > production-webinar-nginx.conf
+        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml' > production-webinar-nginx.conf
 
     - name: Running tests
       shell:  bash {0}
