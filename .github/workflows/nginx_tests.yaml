@@ -44,8 +44,9 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-    - name: Create Config files
-      runs: |
+    - name: Create Config Files
+      shell:  bash {0}
+      run: |
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod a+x /usr/local/bin/yq
         yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml > dev-nginx.conf
@@ -54,7 +55,7 @@ jobs:
         yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml > production-canary-nginx.conf
         yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml > production-webinar-nginx.conf
 
-    - name: Running tests
+    - name: Running Tests
       shell:  bash {0}
       run: |
         result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test -v ${WORKSPACE}/dev-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
