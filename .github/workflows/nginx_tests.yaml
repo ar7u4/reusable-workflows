@@ -44,6 +44,9 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
+    - name: Checkout
+      uses: actions/checkout@v1
+
     - name: Create Config Files
       shell:  bash {0}
       run: |
