@@ -74,46 +74,6 @@ jobs:
         NGINX_CONFIG_FILES_EXPORT: ${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
         NGINX_IMAGE: ${{ inputs.NGINX_IMAGE }}
 
-    # - name: Running Tests
-    #   shell:  bash {0}
-    #   run: |
-    #     result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test --mount type=bind,source="$(pwd)"/dev-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-    #     result_dev_canary=$(docker run --rm -t -a stdout --name dev-canary-nginx-test --mount type=bind,source="$(pwd)"/dev-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-    #     result_prod=$(docker run --rm -t -a stdout --name prod-nginx-test --mount type=bind,source="$(pwd)"/production-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-    #     result_prod_canary=$(docker run --rm -t -a stdout --name prod-canary-nginx-test --mount type=bind,source="$(pwd)"/production-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-    #     result_prod_webinar=$(docker run --rm -t -a stdout --name prod-webinar-nginx-test --mount type=bind,source="$(pwd)"/production-webinar-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-
-    #     # Look for the word successful and count the lines that have it
-    #     successful_dev=$(echo $result_dev | grep successful | wc -l)
-    #     successful_dev_canary=$(echo $result_dev_canary | grep successful | wc -l)
-    #     successful_prod=$(echo $result_prod | grep successful | wc -l)
-    #     successful_prod_canary=$(echo $result_prod_canary | grep successful | wc -l)
-    #     successful_prod_webinar=$(echo $result_prod_webinar | grep successful | wc -l)
-
-    #     if [ $successful_dev = 0 ]; then
-    #       echo FAILED
-    #       echo "$result_dev"
-    #       exit 1
-    #     elif [ $successful_dev_canary = 0 ]; then
-    #       echo FAILED
-    #       echo "result_dev_canary"
-    #       exit 1
-    #     elif [ $successful_prod = 0 ]; then
-    #       echo FAILED
-    #       echo "$result_prod"
-    #       exit 1
-    #     elif [ $successful_prod_canary = 0 ]; then
-    #       echo FAILED
-    #       echo "$result_prod_canary"
-    #       exit 1
-    #     elif [ $successful_prod_webinar = 0 ]; then
-    #       echo FAILED
-    #       echo "$result_prod_webinar"
-    #       exit 1
-    #     else
-    #       echo SUCCESS
-    #     fi
-
   report_success:
     runs-on: small-runner
     needs: [nginx_test]
