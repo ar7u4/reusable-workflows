@@ -61,11 +61,11 @@ jobs:
     - name: Running Tests
       shell:  bash {0}
       run: |
-        result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test -v dev-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_dev_canary=$(docker run --rm -t -a stdout --name dev-canary-nginx-test -v dev-canary-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod=$(docker run --rm -t -a stdout --name prod-nginx-test -v production-nginx.conf:usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod_canary=$(docker run --rm -t -a stdout --name prod-canary-nginx-test -v production-canary-nginx.conf:usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod_webinar=$(docker run --rm -t -a stdout --name prod-webinar-nginx-test -v production-webinar-nginx.conf:usr/local/openresty/nginx/conf/nginx.conf:ro ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test --mount type=bind,source="$(pwd)"/dev-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_dev_canary=$(docker run --rm -t -a stdout --name dev-canary-nginx-test --mount type=bind,source="$(pwd)"/dev-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_prod=$(docker run --rm -t -a stdout --name prod-nginx-test --mount type=bind,source="$(pwd)"/production-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_prod_canary=$(docker run --rm -t -a stdout --name prod-canary-nginx-test --mount type=bind,source="$(pwd)"/production-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        result_prod_webinar=$(docker run --rm -t -a stdout --name prod-webinar-nginx-test --mount type=bind,source="$(pwd)"/production-webinar-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
 
         # Look for the word successful and count the lines that have it
         successful_dev=$(echo $result_dev | grep successful | wc -l)
