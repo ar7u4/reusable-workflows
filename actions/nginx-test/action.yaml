@@ -16,13 +16,13 @@ runs:
   using: "composite"
   steps:
     - name: Set arrays
-      shell:  bash {0}
+      shell:  bash
       run: |
         NGINX_CONFIG_FILE_PATH_ARRAY=${{ inputs.NGINX_CONFIG_FILES_PATH }}
         NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
 
     - name: Create Config Files
-      shell:  bash {0}
+      shell:  bash
       run: |
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod a+x /usr/local/bin/yq
@@ -31,7 +31,7 @@ runs:
         done
 
     - name: Config Tests
-      shell: bash {0}
+      shell: bash
       run: |
         for i in "${!NGINX_CONFIG_FILE_EXPORT_ARRAY[@]}"; do
 
