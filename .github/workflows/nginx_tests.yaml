@@ -52,9 +52,6 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-    - name: Checkout
-      uses: actions/checkout@v1
-
     - name: Running Tests
       uses: SwipeStoxGmbH/reusable-workflows/actions/nginx-test@master
       with:
