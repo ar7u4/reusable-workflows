@@ -24,7 +24,7 @@ runs:
           # Look for the word successful and count the lines that have it
           successful=$(echo $result | grep successful | wc -l)
 
-          if [ $successful = 0]; then
+          if [ $successful = 0 ]; then
             echo FAILED
             echo "$result"
             exit 1
