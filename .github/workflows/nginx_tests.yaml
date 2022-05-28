@@ -74,23 +74,23 @@ jobs:
         successful_prod_canary=$(echo $result_prod_canary | grep successful | wc -l)
         successful_prod_webinar=$(echo $result_prod_webinar | grep successful | wc -l)
 
-        if [ $successful_dev = 0]; then
+        if [ $successful_dev = 0 ]; then
           echo FAILED
           echo "$result_dev"
           exit 1
-        elif [ $successful_dev_canary = 0]; then
+        elif [ $successful_dev_canary = 0 ]; then
           echo FAILED
           echo "result_dev_canary"
           exit 1
-        elif [ $successful_prod = 0]; then
+        elif [ $successful_prod = 0 ]; then
           echo FAILED
           echo "$result_prod"
           exit 1
-        elif [ $successful_prod_canary = 0]; then
+        elif [ $successful_prod_canary = 0 ]; then
           echo FAILED
           echo "$result_prod_canary"
           exit 1
-        elif [ $successful_prod_webinar = 0]; then
+        elif [ $successful_prod_webinar = 0 ]; then
           echo FAILED
           echo "$result_prod_webinar"
           exit 1
