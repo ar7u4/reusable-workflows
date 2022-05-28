@@ -65,7 +65,7 @@ jobs:
         NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
 
         for i in "${!NGINX_CONFIG_FILE_PATH_ARRAY[@]}"; do
-          yq -e '.data."nginx.conf"' "%s > %s\n" "${NGINX_CONFIG_FILE_PATH_ARRAY[i]}" "${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]}"
+          yq -e '.data."nginx.conf"' ${NGINX_CONFIG_FILE_PATH_ARRAY[i]} > ${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]}
         done
 
     - name: Running Tests
