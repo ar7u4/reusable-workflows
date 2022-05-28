@@ -44,30 +44,15 @@ jobs:
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-    - name: Set dev configuration file
-      uses: mikefarah/yq@master
-      with:
-        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml' > dev-nginx.conf
-
-    - name: Set dev canary configuration file
-      uses: mikefarah/yq@master
-      with:
-        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev-canary/configmap.yaml' > dev-canary-nginx.conf
-
-    - name: Set production configuration file
-      uses: mikefarah/yq@master
-      with:
-        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml' > production-nginx.conf
-
-    - name: Set production canary configuration file
-      uses: mikefarah/yq@master
-      with:
-        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml' > production-canary-nginx.conf
-
-    - name: Set production webinar configuration file
-      uses: mikefarah/yq@master
-      with:
-        cmd: sudo yq e '.data."nginx.conf"' '${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml' > production-webinar-nginx.conf
+    - name: Create Config files
+      runs: |
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml > dev-nginx.conf
+        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev-canary/configmap.yaml > dev-canary-nginx.conf
+        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml > production-nginx.conf
+        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml > production-canary-nginx.conf
+        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml > production-webinar-nginx.conf
 
     - name: Running tests
       shell:  bash {0}
