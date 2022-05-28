@@ -69,10 +69,10 @@ jobs:
         done
 
     - name: Running Tests
-        uses: SwipeStoxGmbH/reusable-workflows/actions/nginx-test@master
-        with:
-          NGINX_CONFIG_FILES_EXPORT: ${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
-          NGINX_IMAGE: ${{ inputs.NGINX_IMAGE }}
+      uses: SwipeStoxGmbH/reusable-workflows/actions/nginx-test@master
+      with:
+        NGINX_CONFIG_FILES_EXPORT: ${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
+        NGINX_IMAGE: ${{ inputs.NGINX_IMAGE }}
 
     # - name: Running Tests
     #   shell:  bash {0}
