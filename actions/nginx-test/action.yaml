@@ -2,52 +2,32 @@ name: 'NGINX conf test'
 description: 'Test the NGINX configuration file'
 
 inputs:
-  cluster-name:
-    description: 'The name of the cluster'
+  NGINX_CONFIG_FILES_EXPORT:
+    description: 'The config file names'
     required: true
-  state-store:
-    description: 'Store containing KOPS state - example: s3://foo.bar'
+  NGINX_IMAGE:
+    description: 'The NGINX image'
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: install kops and export kubeconfig
+    - name: Config Tests
       shell: bash
       run: |
-        result_dev=$(docker run --rm -t -a stdout --name dev-nginx-test --mount type=bind,source="$(pwd)"/dev-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_dev_canary=$(docker run --rm -t -a stdout --name dev-canary-nginx-test --mount type=bind,source="$(pwd)"/dev-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod=$(docker run --rm -t -a stdout --name prod-nginx-test --mount type=bind,source="$(pwd)"/production-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod_canary=$(docker run --rm -t -a stdout --name prod-canary-nginx-test --mount type=bind,source="$(pwd)"/production-canary-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
-        result_prod_webinar=$(docker run --rm -t -a stdout --name prod-webinar-nginx-test --mount type=bind,source="$(pwd)"/production-webinar-nginx.conf,target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
+        NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
+        for i in "${!NGINX_CONFIG_FILE_EXPORT_ARRAY[@]}"; do
 
-        # Look for the word successful and count the lines that have it
-        successful_dev=$(echo $result_dev | grep successful | wc -l)
-        successful_dev_canary=$(echo $result_dev_canary | grep successful | wc -l)
-        successful_prod=$(echo $result_prod | grep successful | wc -l)
-        successful_prod_canary=$(echo $result_prod_canary | grep successful | wc -l)
-        successful_prod_webinar=$(echo $result_prod_webinar | grep successful | wc -l)
+          result=$(docker run --rm -t -a stdout --name dev-nginx-test --mount type=bind,source="$(pwd)"/${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]},target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
 
-        if [ $successful_dev = 0]; then
-          echo FAILED
-          echo "$result_dev"
-          exit 1
-        elif [ $successful_dev_canary = 0 ]; then
-          echo FAILED
-          echo "result_dev_canary"
-          exit 1
-        elif [ $successful_prod = 0 ]; then
-          echo FAILED
-          echo "$result_prod"
-          exit 1
-        elif [ $successful_prod_canary = 0 ]; then
-          echo FAILED
-          echo "$result_prod_canary"
-          exit 1
-        elif [ $successful_prod_webinar = 0 ]; then
-          echo FAILED
-          echo "$result_prod_webinar"
-          exit 1
-        else
-          echo SUCCESS
-        fi
+          # Look for the word successful and count the lines that have it
+          successful=$(echo $result | grep successful | wc -l)
+
+          if [ $successful = 0]; then
+            echo FAILED
+            echo "$result"
+            exit 1
+          else
+            echo SUCCESS
+          fi
+        done
