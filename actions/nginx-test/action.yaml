@@ -13,8 +13,9 @@ runs:
   using: "composite"
   steps:
     - name: Config Tests
-      shell: bash
+      shell: bash {0}
       run: |
+      
         NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
         for i in "${!NGINX_CONFIG_FILE_EXPORT_ARRAY[@]}"; do
 
