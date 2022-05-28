@@ -58,6 +58,7 @@ jobs:
     - name: Running Tests
       uses: SwipeStoxGmbH/reusable-workflows/actions/nginx-test@master
       with:
+        NGINX_CONFIG_FILES_PATH: ${{ inputs.NGINX_CONFIG_FILES_PATH }}
         NGINX_CONFIG_FILES_EXPORT: ${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
         NGINX_IMAGE: ${{ inputs.NGINX_IMAGE }}
 

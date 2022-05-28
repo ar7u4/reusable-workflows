@@ -2,6 +2,9 @@ name: 'NGINX conf test'
 description: 'Test the NGINX configuration file'
 
 inputs:
+  NGINX_CONFIG_FILES_PATH:
+    description: 'The config file names'
+    required: true
   NGINX_CONFIG_FILES_EXPORT:
     description: 'The config file names'
     required: true
@@ -12,15 +15,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Set arrays
+      shell:  bash {0}
+      run: |
+        NGINX_CONFIG_FILE_PATH_ARRAY=${{ inputs.NGINX_CONFIG_FILES_PATH }}
+        NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
+
     - name: Create Config Files
       shell:  bash {0}
       run: |
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod a+x /usr/local/bin/yq
-
-        NGINX_CONFIG_FILE_PATH_ARRAY=${{ inputs.NGINX_CONFIG_FILES_PATH }}
-        NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
-
         for i in "${!NGINX_CONFIG_FILE_PATH_ARRAY[@]}"; do
           yq -e '.data."nginx.conf"' ${NGINX_CONFIG_FILE_PATH_ARRAY[i]} > ${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]}
         done
@@ -28,8 +33,6 @@ runs:
     - name: Config Tests
       shell: bash {0}
       run: |
-      
-        NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
         for i in "${!NGINX_CONFIG_FILE_EXPORT_ARRAY[@]}"; do
 
           result=$(docker run --rm -t -a stdout --name dev-nginx-test --mount type=bind,source="$(pwd)"/${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]},target=/usr/local/openresty/nginx/conf/nginx.conf,readonly ${{ inputs.NGINX_IMAGE }} nginx -c /usr/local/openresty/nginx/conf/nginx.conf -t)
