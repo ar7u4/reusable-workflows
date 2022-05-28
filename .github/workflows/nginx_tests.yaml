@@ -24,6 +24,14 @@ on:
         type: string
         required: true
         description: 'NGINX Image'
+      NGINX_CONFIG_FILES_PATH:
+        type: string
+        required: true
+        description: 'NGINX Image'
+      NGINX_CONFIG_FILES_EXPORT:
+        type: string
+        required: true
+        description: 'NGINX Image'
     secrets:
       slack-bot-token:
         required: true
@@ -52,11 +60,13 @@ jobs:
       run: |
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod a+x /usr/local/bin/yq
-        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev/configmap.yaml > dev-nginx.conf
-        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/dev-canary/configmap.yaml > dev-canary-nginx.conf
-        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production/configmap.yaml > production-nginx.conf
-        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-canary/configmap.yaml > production-canary-nginx.conf
-        yq -e '.data."nginx.conf"' ${{ inputs.KUSTOMIZE_ROOT }}/overlays/production-webinar/configmap.yaml > production-webinar-nginx.conf
+
+        NGINX_CONFIG_FILE_PATH_ARRAY=${{ inputs.NGINX_CONFIG_FILES_PATH }}
+        NGINX_CONFIG_FILE_EXPORT_ARRAY=${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
+
+        for i in "${!NGINX_CONFIG_FILE_PATH_ARRAY[@]}"; do
+          yq -e '.data."nginx.conf"' "%s > %s\n" "${NGINX_CONFIG_FILE_PATH_ARRAY[i]}" "${NGINX_CONFIG_FILE_EXPORT_ARRAY[i]}"
+        done
 
     - name: Running Tests
       shell:  bash {0}
