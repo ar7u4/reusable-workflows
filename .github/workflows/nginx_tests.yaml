@@ -48,7 +48,7 @@ jobs:
         channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
         message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
         status: Testing NGINX Config
-        color: B14736
+        color: 0037FF
       env:
         SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 

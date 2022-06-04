@@ -39,24 +39,11 @@ on:
         required: true
         
 jobs:
-  clean_assembly:
+  slack_notify:
     runs-on: small-runner
     steps:
-      - name: Notify Slack of clean and assembly
-        id: gh-build
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: Building artifact
-          color: warning
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
-
-
   social_build:
     runs-on: small-runner
-    needs: [clean_assembly]
     outputs:
       TAG: ${{ env.TAG }}
     steps:
