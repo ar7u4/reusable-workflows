@@ -1,0 +1,28 @@
+name: "Tag release and push tag"
+
+on:
+  workflow_call:
+    secrets:
+      gh-token:
+        required: true
+
+jobs:  
+  deploy_dev:
+    runs-on: small-runner
+    outputs:
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
+      TAG: ${{ env.TAG }}
+    steps:
+      - name: Extract TAG
+        id: envs 
+        run: |
+          TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
+          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Tag version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.gh-token }}
+          custom_tag: ${{ env.TAG }}
+
