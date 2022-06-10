@@ -27,9 +27,16 @@ jobs:
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
+      - name: Checkout
+        uses: actions/checkout@v1
+ 
       - name: Notify Slack of GH Tag
         id: gh-tag-slack
         uses: voxmedia/github-action-slack-notify-build@v1
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: Deploying image ${{ env.TAG }} on DEV
@@ -43,6 +50,7 @@ jobs:
         with:
           github_token: ${{ secrets.gh-token }}
           custom_tag: ${{ env.TAG }}
+          tag_prefix: ""
 
   slack_report_success:
     runs-on: small-runner
