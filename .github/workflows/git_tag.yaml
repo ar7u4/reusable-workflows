@@ -2,15 +2,23 @@ name: "Tag release and push tag"
 
 on:
   workflow_call:
+
+    inputs:
+      SLACK_DEV_DEPLOY_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-deploy-dev ID'
     secrets:
+      slack-bot-token:
+        required: true
       gh-token:
         required: true
 
 jobs:  
-  deploy_dev:
+  git_tag:
     runs-on: small-runner
     outputs:
-      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
+      SLACK_MESSAGE_ID: ${{ steps.gh-tag-slack.outputs.message_id }}
       TAG: ${{ env.TAG }}
     steps:
       - name: Extract TAG
@@ -19,6 +27,16 @@ jobs:
           TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
+      - name: Notify Slack of GH Tag
+        id: gh-tag-slack
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          status: Deploying image ${{ env.TAG }} on DEV
+          color: 0037FF
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
       - name: Tag version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0
@@ -26,3 +44,34 @@ jobs:
           github_token: ${{ secrets.gh-token }}
           custom_tag: ${{ env.TAG }}
 
+  slack_report_success:
+    runs-on: small-runner
+    needs: [git_tag]
+    if: success()
+    steps: 
+      - name: Notify Slack of Success
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.gh-tag-slack.outputs.slack_message_id }}
+          status: Building ${{ needs.gh-tag-slack.outputs.TAG }} successful
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+  slack_report_fail:
+    runs-on: small-runner
+    needs: [git_tag]
+    if: failure()
+    steps: 
+      - name: Notify Slack of Failure
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ needs.gh-tag-slack.outputs.slack_message_id }}
+          status: Building ${{ needs.gh-tag-slack.outputs.TAG }} faile
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+  
