@@ -50,7 +50,7 @@ jobs:
     steps:
 
       - name: Check image tag 
-      - run: | 
+        run: | 
           if [[ ! ${{ inputs.IMAGE_TAG }} =~ ^[a-z]+[-] ]] ; then 
             echo 'Invalid Image Tag'
             echo 'must be in {BRANCH_NAME}-{SHA} format'
