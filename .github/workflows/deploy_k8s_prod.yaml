@@ -131,7 +131,7 @@ jobs:
           status: |
             Image Deployed on Production
 
-            - Image Tag: ${{ needs.deploy_production.outputs.TAG }}
+            - Image Tag: ${{ inputs.IMAGE_TAG }}
             - Actor: ${{ needs.deploy_production.outputs.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           color: good
@@ -151,7 +151,7 @@ jobs:
           status: |
             Image Production Deployment Failed
 
-            - Image Tag: ${{ needs.deploy_production.outputs.TAG }}
+            - Image Tag: ${{ inputs.IMAGE_TAG }}
             - Actor: ${{ needs.deploy_production.outputs.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           color: danger
