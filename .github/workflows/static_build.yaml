@@ -1,0 +1,153 @@
+name: "Build Static App"
+
+on:
+  workflow_call:
+
+    inputs:
+      SLACK_BUILD_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-build - ID'
+      SLACK_BUILD_MESSAGE_ID:
+        type: string
+        required: true
+        description: '#gh-build - Message ID'
+      NODE_VERSION:
+        type: string
+        required: true
+        description: 'node version'
+      NODE_OPTIONS:
+        type: string
+        required: true
+        description: 'node options'
+      ARCHIVE_BUCKET:
+        type: string
+        required: true
+        description: 'archive bucket'
+      SERVICE_NAME:
+        type: string
+        required: true
+        description: 'service name'
+    secrets:
+      slack-bot-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      naga-npm-token:
+        required: true
+        
+
+jobs:
+  build: 
+    runs-on: small-runner
+    outputs:
+      GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
+  
+    steps:
+      - name: Set environment variables
+        run: |
+          echo "SHORT_COMMIT=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
+
+      - name: Notify Slack of Build
+        id: gh-build
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+            Starting Image Build
+
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job Tag: ${{ env.TAG }}
+            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          color: 0037FF
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Checkout
+        uses: actions/checkout@v1
+ 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Install AWS cli
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: Build App
+        id: build
+        run: |
+          NPM_CONFIG_PREFIX=~/.npm-global
+          PATH+EXTRA=~/.npm-global/bin
+          echo "registry=https://registry.npmjs.org/" > .npmrc
+          echo \"//registry.npmjs.org/:_authToken=${{ secrets.naga-npm-token }}\" >> .npmrc
+          mkdir -p ~/.npm-global/lib
+          npm install -g npm@7.3.0
+          ~/.npm-global/bin/npm ci
+          CI=false ~/.npm-global/bin/npm run build
+          mv build dev_build
+          REACT_APP_ENV=production CI=false ~/.npm-global/bin/npm run build
+          mv build production_build
+          mkdir build; mv dev_build build/dev; mv production_build build/production
+
+      - name: Archive
+        run:
+          tar cvzf /tmp/${{ env.TAG }}.tar.gz ./build
+          aws s3 cp /tmp/${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
+
+  slack_report_success:
+    runs-on: small-runner
+    needs: [build]
+    if: success()
+    steps: 
+      - name: Notify Slack of Success
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+            Static Build Completed
+
+            - Actor: ${{ needs.build.outputs.GITHUB_ACTOR }}
+            - Job Tag: ${{ env.TAG }}
+            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+  slack_report_fail:
+    runs-on: small-runner
+    needs: [build]
+    if: failure()
+    steps: 
+      - name: Notify Slack of Failure
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+            Static Build Failed 
+
+            - Actor: ${{ needs.build.outputs.GITHUB_ACTOR }}
+            - Job Tag: ${{ env.TAG }}
+            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
