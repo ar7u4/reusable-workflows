@@ -72,7 +72,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: |
-            Starting Image Build
+            Starting Build
 
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job Tag: ${{ env.TAG }}
@@ -117,8 +117,8 @@ jobs:
 
       - name: Archive
         run:
-          tar cvzf /tmp/${{ env.TAG }}.tar.gz ./build
-          aws s3 cp /tmp/${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
+          tar cvzf ${{ env.TAG }}.tar.gz ./build
+          aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
 
   slack_report_success:
     runs-on: small-runner
