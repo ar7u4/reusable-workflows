@@ -12,6 +12,10 @@ on:
         type: string
         required: true
         description: '#gh-build - Message ID'
+      NODE_VERSION:
+        type: string
+        required: true
+        description: 'node version'
       ECR_REPO:
         type: string
         required: true
@@ -89,6 +93,25 @@ jobs:
       - name: Install AWS cli
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@master
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: Build App
+        id: build
+        run: |
+          NPM_CONFIG_PREFIX=~/.npm-global
+          PATH+EXTRA=~/.npm-global/bin
+          echo "registry=https://registry.npmjs.org/" > .npmrc
+          echo \"//registry.npmjs.org/:_authToken=${{ secrets.naga-npm-token }}\" >> .npmrc
+          mkdir -p ~/.npm-global/lib
+          npm install -g npm@7.3.0
+          ~/.npm-global/bin/npm ci
+          CI=false REACT_APP_PR_BUILD=1 ~/.npm-global/bin/npm run build
+          mv build dev_build
+          mkdir build; mv dev_build build/dev
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
