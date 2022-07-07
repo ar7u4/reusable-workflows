@@ -103,8 +103,6 @@ jobs:
       - name: Build App
         id: build
         run: |
-          NPM_CONFIG_PREFIX=~/.npm-global
-          PATH+EXTRA=~/.npm-global/bin
           echo "registry=https://registry.npmjs.org/" > .npmrc
           echo \"//registry.npmjs.org/:_authToken=${{ secrets.naga-npm-token }}\" >> .npmrc
           mkdir -p ~/.npm-global/lib
