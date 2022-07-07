@@ -24,6 +24,10 @@ on:
         type: string
         required: true
         description: 'multiline string of deployment buckets'
+      DEPLOY_BUCKET_START_INDEX:
+        type: string
+        required: true
+        description: 'starting index for NA-* builds'
       SERVICE_NAME:
         type: string
         required: true
