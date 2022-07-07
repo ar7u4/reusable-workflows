@@ -111,6 +111,9 @@ jobs:
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
             aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+          done
+
+          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
           done
 
