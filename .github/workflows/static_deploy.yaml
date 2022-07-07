@@ -103,7 +103,7 @@ jobs:
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
-          CF_DISTRIBUTIONS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
 
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
             aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
