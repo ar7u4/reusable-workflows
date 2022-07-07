@@ -20,6 +20,10 @@ on:
         type: string
         required: true
         description: 'node options'
+      NODE_REGISTRY_URL:
+        type: string
+        required: true
+        description: 'custom node registry'
       ARCHIVE_BUCKET:
         type: string
         required: true
@@ -99,7 +103,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.NODE_VERSION }}
-          registry-url: https://registry.npmjs.org/
+          registry-url: ${{ inputs.NODE_REGISTRY_URL }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
@@ -116,7 +120,7 @@ jobs:
           mkdir build; mv dev_build build/dev; mv production_build build/production
 
       - name: Archive
-        run:
+        run: |
           tar cvzf ${{ env.TAG }}.tar.gz ./build
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
 
