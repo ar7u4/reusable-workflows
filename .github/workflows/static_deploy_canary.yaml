@@ -91,7 +91,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@master
 
       - name: Copy from Archive
-        run:
+        run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
