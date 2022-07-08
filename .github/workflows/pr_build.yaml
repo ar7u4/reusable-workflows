@@ -98,21 +98,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.NODE_VERSION }}
+          registry-url: ${{ inputs.NODE_REGISTRY_URL }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
       - name: Build App
         id: build
         run: |
-          NPM_CONFIG_PREFIX=~/.npm-global
-          PATH+EXTRA=~/.npm-global/bin
-          echo "registry=https://registry.npmjs.org/" > .npmrc
-          echo \"//registry.npmjs.org/:_authToken=${{ secrets.naga-npm-token }}\" >> .npmrc
           mkdir -p ~/.npm-global/lib
           npm install -g npm@7.3.0
-          ~/.npm-global/bin/npm ci
-          CI=false REACT_APP_PR_BUILD=1 ~/.npm-global/bin/npm run build
+          npm ci
+          CI=false REACT_APP_PR_BUILD=1 npm run build
           mv build dev_build
           mkdir build; mv dev_build build/dev
-
+          
       - name: Set up Docker Context for Buildx
         id: buildx-context
         run: |
