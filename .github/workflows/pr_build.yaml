@@ -100,6 +100,11 @@ jobs:
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@master
 
+      - name: ECR repo setup
+        uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
+        with:
+          ECR_REPO: ${{ inputs.ECR_REPO }}
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
