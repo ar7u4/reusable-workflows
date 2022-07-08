@@ -16,6 +16,10 @@ on:
         type: string
         required: true
         description: 'node version'
+      NODE_REGISTRY_URL:
+        type: string
+        required: true
+        description: 'custom node registry'
       ECR_REPO:
         type: string
         required: true
@@ -111,7 +115,7 @@ jobs:
           CI=false REACT_APP_PR_BUILD=1 npm run build
           mv build dev_build
           mkdir build; mv dev_build build/dev
-          
+
       - name: Set up Docker Context for Buildx
         id: buildx-context
         run: |
