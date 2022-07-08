@@ -72,7 +72,7 @@ jobs:
           status: |
             Deploying Canary on DEV
 
-            - Image Tag: ${{ env.TAG }}
+            - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           color: 0037FF
