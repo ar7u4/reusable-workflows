@@ -37,6 +37,8 @@ on:
         required: true
       aws-region:
         required: true
+      naga-npm-token:
+        required: true
       dockerhub-username:
         required: true
       dockerhub-token:
