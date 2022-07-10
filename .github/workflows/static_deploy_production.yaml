@@ -8,10 +8,10 @@ on:
         type: string
         required: true
         description: '#gh-deploy-production ID'
-      CF_DISTRIBUTION_ID:
+      CF_DISTRIBUTION_IDS:
         type: string
         required: true
-        description: 'CF Distro'
+        description: 'CF Distros'
       CF_INVALIDATION_PATHS:
         type: string
         required: true
@@ -20,7 +20,7 @@ on:
         type: string
         required: true
         description: 'archive bucket'
-      DEPLOY_BUCKET:
+      DEPLOY_BUCKETS:
         type: string
         required: true
         description: 'multiline string of deployment buckets'
@@ -100,12 +100,20 @@ jobs:
       - name: Deploy and Invalidate CF
         shell:  bash {0}
         run: |
-          aws s3 rm s3://${{ inputs.DEPLOY_BUCKET }} --region ${{ secrets.aws-region }} --recursive
-          aws s3 sync ./build/production/ s3://${{ inputs.DEPLOY_BUCKET }} --region ${{ secrets.aws-region }} --acl public-read
-          aws s3 cp --content-type 'application/json' --acl public-read s3://${{ inputs.DEPLOY_BUCKET }}/apple-app-site-association s3://${{ inputs.DEPLOY_BUCKET }}/apple-app-site-association --metadata-directive REPLACE
-          aws s3 cp --content-type 'application/json' --acl public-read s3://${{ inputs.DEPLOY_BUCKET }}/.well-known/assetlinks.json s3://${{ inputs.DEPLOY_BUCKET }}/.well-known/assetlinks.json --metadata-directive REPLACE
-          aws s3 cp --content-type 'application/xml' --acl public-read s3://${{ inputs.DEPLOY_BUCKET }}/sitemap.xml s3://${{ inputs.DEPLOY_BUCKET }}/sitemap.xml --metadata-directive REPLACE
-          aws cloudfront create-invalidation --distribution-id ${{ inputs.CF_DISTRIBUTION_ID }} --paths '/*'
+          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+
+          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
+            aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
+            aws s3 sync ./build/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+          done
+
+          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
+          done
 
   slack_report_success:
     runs-on: small-runner
@@ -118,7 +126,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
           status: |
-            Service Deployed on production
+            Service Deployed on Production
 
             - Job Tag: ${{ needs.deploy_production.outputs.TAG }}
             - Actor: ${{ needs.deploy_production.outputs.GITHUB_ACTOR }}
@@ -138,7 +146,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.deploy_production.outputs.slack_message_id }}
           status: |
-            Service production Deployment Failed
+            Service Production Deployment Failed
 
             - Job Tag: ${{ needs.deploy_production.outputs.TAG }}
             - Actor: ${{ needs.deploy_production.outputs.GITHUB_ACTOR }}
