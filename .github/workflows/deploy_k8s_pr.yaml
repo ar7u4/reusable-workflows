@@ -176,7 +176,7 @@ jobs:
           status: |
             PR Deployed on DEV
 
-            - Run: ${{ env.RUN }}
+            - Run: ${{ needs.deploy_pr.outputs.RUN }}
             - Image Tag: ${{ needs.deploy_pr.outputs.TAG }}
             - Actor: ${{ needs.deploy_pr.outputs.GITHUB_ACTOR }}
             - PR URL: https://${{ needs.deploy_pr.outputs.TAG }}.${{ inputs.DOMAIN_INT }}
@@ -198,7 +198,7 @@ jobs:
           status: |
             PR Deployment Failed 
 
-            - Run: ${{ env.RUN }}
+            - Run: ${{ needs.deploy_pr.outputs.RUN }}
             - Image Tag: ${{ needs.deploy_pr.outputs.TAG }}
             - Actor: ${{ needs.deploy_pr.outputs.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -161,7 +161,7 @@ jobs:
           status: |
             PR Image Build Completed
 
-            - Run: ${{ env.RUN }}
+            - Run: ${{ needs.pr_build.outputs.RUN }}
             - Image Tag: ${{ needs.pr_build.outputs.TAG }}
             - Actor: ${{ needs.pr_build.outputs.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -182,7 +182,7 @@ jobs:
           status: |
             PR Image Build Failed
 
-            - Run: ${{ env.RUN }}
+            - Run: ${{ needs.pr_build.outputs.RUN }}
             - Image Tag: ${{ needs.pr_build.outputs.TAG }}
             - Actor: ${{ needs.pr_build.outputs.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
