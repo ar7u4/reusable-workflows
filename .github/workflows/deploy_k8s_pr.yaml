@@ -161,7 +161,7 @@ jobs:
         uses: atlassian/gajira-comment@23b9748b2d2ea1c486bd788daed8b4c00fccf362
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
-          comment: "${{ env.TAG }} deployed. Validate changes here: https://${{ env.TAG }}.sxdev.io"
+          comment: "${{ env.TAG }} deployed. Validate changes here: https://${{ env.TAG }}.${{ inputs.DOMAIN_INT }}"
 
   slack_report_success:
     runs-on: small-runner
