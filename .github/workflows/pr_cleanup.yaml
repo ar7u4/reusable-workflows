@@ -75,7 +75,7 @@ jobs:
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: |
-            PR ${{ env.TAG }} closed. Recycling...
+            ${{ env.TAG }} closed. Recycling...
 
             - Run: ${{ env.RUN }}
             - Image Tag: ${{ env.TAG }}
@@ -135,7 +135,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
           status: |
-            PR ${{ needs.pr_cleanup.outputs.TAG }} closed and recycled
+            ${{ needs.pr_cleanup.outputs.TAG }} closed and recycled
 
             - Run: ${{ env.RUN }}
             - Image Tag: ${{ needs.pr_cleanup.outputs.TAG }}
@@ -156,7 +156,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
           status: |
-            PR ${{ needs.pr_cleanup.outputs.TAG }} closed. Recycling failed
+            ${{ needs.pr_cleanup.outputs.TAG }} closed. Recycling failed
 
             - Run: ${{ env.RUN }}
             - Image Tag: ${{ needs.pr_cleanup.outputs.TAG }}
