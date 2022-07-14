@@ -58,6 +58,7 @@ jobs:
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
       TAG: ${{ env.TAG }}
+      RUN: ${{ env.RUN }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
 
     steps:

@@ -49,6 +49,7 @@ jobs:
     runs-on: small-runner
     outputs:
       TAG: ${{ env.TAG }}
+      RUN: ${{ env.RUN }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
       
     steps:
