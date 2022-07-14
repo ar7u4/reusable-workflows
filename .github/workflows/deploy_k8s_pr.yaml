@@ -122,6 +122,12 @@ jobs:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
+      - name: Restart deployment
+        if: github.event.action == 'synchronize'
+        uses: SwipeStoxGmbH/reusable-workflows/actions/restart-deployment@master
+        with:
+          KUSTOMIZE_ROOT: ${{ env.KUSTOMIZE_ROOT }}
+
       - name: "Create PR DNS Record "
         uses: Roosterfish/aws-route53-record-set-action@master
         with: 
@@ -162,7 +168,7 @@ jobs:
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
           comment: "${{ env.TAG }} deployed. Validate changes here: https://${{ env.TAG }}.${{ inputs.DOMAIN_INT }}"
-
+      
   slack_report_success:
     runs-on: small-runner
     needs: [deploy_pr]
