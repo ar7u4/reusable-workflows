@@ -19,4 +19,5 @@ runs:
         echo "Restarting pr deployment"
         cd ${{ inputs.KUSTOMIZE_ROOT }}/base
         kubectl delete -f deployment.yaml
+        sleep 1m
         kubect apply -f deployment.yaml
