@@ -127,7 +127,7 @@ jobs:
         if: github.event.action == 'synchronize'
         uses: SwipeStoxGmbH/reusable-workflows/actions/restart-deployment@master
         with:
-          KUSTOMIZE_ROOT: ${{ env.KUSTOMIZE_ROOT }}
+          KUSTOMIZE_ROOT: ${{ inputs.KUSTOMIZE_ROOT }}
 
       - name: "Create PR DNS Record "
         uses: Roosterfish/aws-route53-record-set-action@master
