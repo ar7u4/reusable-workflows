@@ -57,10 +57,10 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          RUN=PR-${{ github.event.number }}-${{ github.run_number }}
-          TAG=PR-${{ github.event.number }}
-          echo "TAG=PR-${{ github.event.number }}" >> $GITHUB_ENV
-          echo "RUN=PR-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
+          RUN=pr-${{ github.event.number }}-${{ github.run_number }}
+          TAG=pr-${{ github.event.number }}
+          echo "TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
+          echo "RUN=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
