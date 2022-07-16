@@ -124,12 +124,8 @@ jobs:
           tar cvzf ${{ env.TAG }}.tar.gz ./build
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
 
-  slack_report_success:
-    runs-on: small-runner
-    needs: [build]
-    if: success()
-    steps: 
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
@@ -144,12 +140,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
-  slack_report_fail:
-    runs-on: small-runner
-    needs: [build]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}

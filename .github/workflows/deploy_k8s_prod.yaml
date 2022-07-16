@@ -128,12 +128,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
-  slack_report_success:
-    runs-on: small-runner
-    needs: [deploy_production]
-    if: success()
-    steps: 
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
@@ -148,12 +144,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-  slack_report_fail:
-    runs-on: small-runner
-    needs: [deploy_production]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}

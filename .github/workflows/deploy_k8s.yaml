@@ -118,6 +118,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
+      - name: Create Git Tag 
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ env.TAG }}
+          message: ${{ env.TAG }}
+
       - name: Notify Slack of Success
         if: success()
         uses: voxmedia/github-action-slack-notify-build@v1

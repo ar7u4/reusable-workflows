@@ -117,12 +117,14 @@ jobs:
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
           done
 
-  slack_report_success:
-    runs-on: small-runner
-    needs: [deploy_dev]
-    if: success()
-    steps: 
+      - name: Create Git Tag 
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ env.TAG }}
+          message: ${{ env.TAG }}
+
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
@@ -137,12 +139,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
-  slack_report_fail:
-    runs-on: small-runner
-    needs: [deploy_dev]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
