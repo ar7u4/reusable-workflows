@@ -19,10 +19,6 @@ runs:
         curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
-        echo "Installing Kustomize"
-        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-        chmod +x ./kustomize
-        sudo mv ./kustomize /usr/local/bin/
         echo "Deploying"
-        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kustomize build . | if [  -z "${{ inputs.NAMESPACE }}" ]; then kubectl apply -f -; else kubectl apply -n ${{ inputs.NAMESPACE }} -f -; fi
+        if [  -z "${{ inputs.NAMESPACE }}" ]; then kubectl apply -k ${{ inputs.KUSTOMIZE_OVERLAY }}; else kubectl apply -n ${{ inputs.NAMESPACE }} -k ${{ inputs.KUSTOMIZE_OVERLAY }}; fi
 

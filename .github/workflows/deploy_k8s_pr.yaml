@@ -54,7 +54,7 @@ on:
 
 jobs:
   deploy_pr:
-    runs-on: small-runnersteps.gh-deploy-dev.outputs.message_id
+    runs-on: small-runner
     outputs:
       TAG: ${{ env.TAG }}
       RUN: ${{ env.RUN }}
