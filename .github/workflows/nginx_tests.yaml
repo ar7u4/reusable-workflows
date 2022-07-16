@@ -96,12 +96,8 @@ jobs:
           NGINX_CONFIG_FILES_EXPORT: ${{ inputs.NGINX_CONFIG_FILES_EXPORT }}
           NGINX_IMAGE: ${{ inputs.NGINX_IMAGE }}
 
-  report_success:
-    runs-on: small-runner
-    needs: [nginx_test]
-    if: success()
-    steps: 
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
@@ -115,12 +111,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-  report_fail:
-    runs-on: small-runner
-    needs: [nginx_test]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}

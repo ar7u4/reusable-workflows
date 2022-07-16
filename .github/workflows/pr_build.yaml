@@ -149,12 +149,8 @@ jobs:
           TAGs: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
-  slack_report_success:
-    runs-on: small-runner
-    needs: [pr_build]
-    if: success()
-    steps: 
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
@@ -170,12 +166,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-  slack_report_fail:
-    runs-on: small-runner
-    needs: [pr_build]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
