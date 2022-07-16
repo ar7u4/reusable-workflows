@@ -26,7 +26,6 @@ jobs:
   git_tag:
     runs-on: small-runner
     outputs:
-      SLACK_MESSAGE_ID: ${{ steps.gh-tag-slack.outputs.message_id }}
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
       
@@ -47,57 +46,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Notify Slack of GH Tag
-        id: gh-tag-slack
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Adding Image Tag on Git
-
-            - Image Tag: ${{ env.TAG }}
-            - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          color: 0037FF
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
-
       - uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ env.TAG }}
           message: ${{ env.TAG }}
-
-      - name: Notify Slack of Success
-        if: success()
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Build Succesfull, Git Tag Added
-
-            - Image Tag: ${{ needs.git_tag.outputs.TAG }}
-            - Actor: ${{ needs.git_tag.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          color: good
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
-
-      - name: Notify Slack of Failure
-        if: failure()
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Build Succesfull but Git Tag Failed
-
-            - Image Tag: ${{ needs.git_tag.outputs.TAG }}
-            - Actor: ${{ needs.git_tag.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          color: danger
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
   
