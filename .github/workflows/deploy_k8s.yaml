@@ -118,41 +118,33 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
-  slack_report_success:
-    runs-on: small-runner
-    needs: [deploy_dev]
-    if: success()
-    steps: 
       - name: Notify Slack of Success
+        if: success()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
+          message_id: ${{ env.slack_message_id }}
           status: |
             Image Deployed on DEV
 
-            - Image Tag: ${{ needs.deploy_dev.outputs.TAG }}
-            - Actor: ${{ needs.deploy_dev.outputs.GITHUB_ACTOR }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
-  slack_report_fail:
-    runs-on: small-runner
-    needs: [deploy_dev]
-    if: failure()
-    steps: 
       - name: Notify Slack of Failure
+        if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.deploy_dev.outputs.slack_message_id }}
+          message_id: ${{ env.slack_message_id }}
           status: |
             Image DEV Deployment Failed
 
-            - Image Tag: ${{ needs.deploy_dev.outputs.TAG }}
-            - Actor: ${{ needs.deploy_dev.outputs.GITHUB_ACTOR }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           color: danger
         env:
