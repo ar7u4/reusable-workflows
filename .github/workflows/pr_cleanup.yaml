@@ -62,6 +62,7 @@ jobs:
           echo "TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
           echo "RUN=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
+          echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -80,7 +81,7 @@ jobs:
             - Run: ${{ env.RUN }}
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Job URL: ${{ env.JOB_URL }}
           color: warning
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -129,14 +130,14 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
+          message_id: ${{ steps.gh-cleanup-dev.outputs.message_id }}
           status: |
-            ${{ needs.pr_cleanup.outputs.TAG }} closed and recycled
+            ${{ env.TAG }} closed and recycled
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ needs.pr_cleanup.outputs.TAG }}
-            - Actor: ${{ needs.pr_cleanup.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
@@ -146,14 +147,14 @@ jobs:
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ needs.pr_cleanup.outputs.SLACK_MESSAGE_ID }}
+          message_id: ${{ steps.gh-cleanup-dev.outputs.message_id }}
           status: |
-            ${{ needs.pr_cleanup.outputs.TAG }} closed. Recycling failed
+            ${{ env.TAG }} closed. Recycling failed
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ needs.pr_cleanup.outputs.TAG }}
-            - Actor: ${{ needs.pr_cleanup.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 

@@ -56,6 +56,7 @@ jobs:
           echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
+          echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -74,7 +75,7 @@ jobs:
 
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Job URL: ${{ env.JOB_URL }}
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
@@ -161,9 +162,9 @@ jobs:
           status: |
             Image Build Completed
             
-            - Image Tag: ${{ needs.social_build.outputs.TAG }}
-            - Actor: ${{ needs.social_build.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
@@ -177,9 +178,9 @@ jobs:
           status: |
             Image Build Failed
 
-            - Image Tag: ${{ needs.social_build.outputs.TAG }}
-            - Actor: ${{ needs.social_build.outputs.GITHUB_ACTOR }}
-            - Job URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
