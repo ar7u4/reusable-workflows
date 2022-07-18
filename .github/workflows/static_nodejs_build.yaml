@@ -1,4 +1,4 @@
-name: "Build Static App"
+name: "Build Static NodeJS App"
 
 on:
   workflow_call:
