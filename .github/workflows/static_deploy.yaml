@@ -83,6 +83,9 @@ jobs:
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Checkout
+        uses: actions/checkout@v1
  
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
