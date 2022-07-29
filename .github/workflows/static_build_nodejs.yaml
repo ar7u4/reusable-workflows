@@ -109,6 +109,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
       - name: Build App
+        if: github.repository	== 'SwipeStoxGmbH/web-trader'
         id: build
         run: |
           mkdir -p ~/.npm-global/lib
@@ -119,6 +120,22 @@ jobs:
           REACT_APP_ENV=production CI=false npm run build
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
+          ls build
+
+      - name: Build App
+        if: github.repository == 'SwipeStoxGmbH/backoffice'
+        id: build
+        run: |
+          mkdir -p ~/.npm-global
+          npm install -g gulp-cli gulp bower
+          npm install
+          ~/.npm-global/bin/bower install
+          timeout 10 ~/.npm-global/bin/gulp build --env=dev
+          mv dist dev_build
+          ~/.npm-global/bin/gulp build --env=prod
+          mv dist production_build
+          mkdir build; mv dev_build build/dev; mv production_build build/production
+          ls build
 
       - name: Archive
         run: |

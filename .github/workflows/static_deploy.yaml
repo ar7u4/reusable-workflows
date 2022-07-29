@@ -104,6 +104,7 @@ jobs:
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
+        if: github.repository	== 'SwipeStoxGmbH/web-trader'
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
@@ -115,6 +116,23 @@ jobs:
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
             aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+          done
+
+          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
+          done
+
+      - name: Deploy and Invalidate CF
+        if: github.repository == 'SwipeStoxGmbH/backoffice'
+        shell:  bash {0}
+        run: |
+          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+
+          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
+            aws s3 sync --acl public-read ./build/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 cp --acl public-read --cache-control=\"max-age=0, no-cache, no-store, must-revalidate\" ./build/dev/index.html s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 cp robots.txt s3://${DEPLOY_BUCKETS_ARRAY[i]}/ --acl public-read
           done
 
           for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
