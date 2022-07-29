@@ -127,10 +127,10 @@ jobs:
           mkdir -p ~/.npm-global
           npm install -g gulp-cli gulp bower
           npm install
-          ~/.npm-global/bin/bower install
-          timeout 10 ~/.npm-global/bin/gulp build --env=dev
+          bower install
+          timeout 10 gulp build --env=dev
           mv dist dev_build
-          ~/.npm-global/bin/gulp build --env=prod
+          gulp build --env=prod
           mv dist production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
           ls build
