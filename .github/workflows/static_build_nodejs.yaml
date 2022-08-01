@@ -135,6 +135,18 @@ jobs:
           mkdir build; mv dev_build build/dev; mv production_build build/production
           ls build
 
+      - name: Build App
+        if: github.repository == 'SwipeStoxGmbH/admin-tool'
+        run: |
+          mkdir ~/.npm-global
+          npm install
+          rm -rf dev_build production_build build
+          npm run build
+          mv build dev_build
+          REACT_APP_ENV=production npm run build
+          mv build production_build
+          mkdir build; mv dev_build build/dev; mv production_build build/production
+
       - name: Archive
         run: |
           tar cvzf ${{ env.TAG }}.tar.gz ./build
