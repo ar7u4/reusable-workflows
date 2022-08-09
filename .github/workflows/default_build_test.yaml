@@ -20,6 +20,10 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
+      MENTION_GROUP:
+        type: string
+        required: true
+        description: 'Forwarding mention group in case of failure'
     secrets:
       slack-bot-token:
         required: true
@@ -149,7 +153,7 @@ jobs:
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
-            - Tag: @${{ env.MENTION_GROUP}}
+            - Tag: @${{ env.MENTION_GROUP }}
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
