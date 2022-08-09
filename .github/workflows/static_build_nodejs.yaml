@@ -123,13 +123,12 @@ jobs:
 
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/backoffice'
-        timeout-minutes: 10
         run: |
           mkdir -p ~/.npm-global
           npm install -g gulp-cli gulp bower
           npm install
           bower install
-          gulp build --env=dev
+          timeout 10m gulp build --env=dev
           mv dist dev_build
           gulp build --env=prod
           mv dist production_build
