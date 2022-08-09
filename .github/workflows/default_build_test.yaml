@@ -131,6 +131,7 @@ jobs:
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
+            - Tag: @${{ env.MENTION_GROUP}}
           color: good
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
@@ -147,6 +148,7 @@ jobs:
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
+            - Tag: @${{ env.MENTION_GROUP}}
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
