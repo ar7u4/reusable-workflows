@@ -128,7 +128,8 @@ jobs:
           npm install -g gulp-cli gulp bower
           npm install
           bower install
-          timeout 10 gulp build --env=dev
+        timeout-minutes: 10 
+          gulp build --env=dev
           mv dist dev_build
           gulp build --env=prod
           mv dist production_build
