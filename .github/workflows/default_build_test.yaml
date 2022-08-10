@@ -44,7 +44,6 @@ jobs:
     outputs:
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
-      MENTION_GROUP: ${{ env.MENTION_GROUP }}
 
     steps:
       - name: Set environment variables
