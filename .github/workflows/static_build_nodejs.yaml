@@ -12,6 +12,14 @@ on:
         type: string
         required: true
         description: '#gh-build - Message ID'
+      ECR_REPO:
+        type: string
+        required: true
+        description: 'Elastic Container Repository of the service'
+      ECR_CACHE_REPO:
+        type: string
+        required: true
+        description: 'Caching Elastic Container Repository of the service'
       NODE_VERSION:
         type: string
         required: true
