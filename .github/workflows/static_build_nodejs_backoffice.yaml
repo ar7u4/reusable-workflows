@@ -136,9 +136,9 @@ jobs:
           npm install
           bower install
           gulp build --env=dev
-          mv dist dev_build
+          mv build dev_build
           gulp build --env=prod
-          mv dist production_build
+          mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
           ls build
 
