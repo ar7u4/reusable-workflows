@@ -12,6 +12,14 @@ on:
         type: string
         required: true
         description: '#gh-build - Message ID'
+      ECR_REPO:
+        type: string
+        required: true
+        description: 'Elastic Container Repository of the service'
+      ECR_CACHE_REPO:
+        type: string
+        required: true
+        description: 'Caching Elastic Container Repository of the service'
       NODE_VERSION:
         type: string
         required: true
@@ -145,6 +153,44 @@ jobs:
           REACT_APP_ENV=production npm run build
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
+
+      - name: Login to Amazon ECR
+        if: ${{ github.repository == 'SwipeStoxGmbH/admin-tool' || github.repository == 'backoffice' }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: ECR repo setup
+        if: ${{ github.repository == 'SwipeStoxGmbH/admin-tool' || github.repository == 'backoffice' }}
+        uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
+        with:
+          ECR_REPO: ${{ inputs.ECR_REPO }}
+
+      - name: Set up Docker Context for Buildx
+        if: ${{ github.repository == 'SwipeStoxGmbH/admin-tool' || github.repository == 'backoffice' }}
+        id: buildx-context
+        run: |
+          docker context create builders
+
+      - name: Set up Docker Buildx
+        if: ${{ github.repository == 'SwipeStoxGmbH/admin-tool' || github.repository == 'backoffice' }}
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
+          endpoint: builders
+
+      - name: Build and push image
+        if: ${{ github.repository == 'SwipeStoxGmbH/admin-tool' || github.repository == 'backoffice' }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # caching to ECR seems not supported yet
+          # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
+          # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
       - name: Archive
         run: |
