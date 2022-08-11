@@ -153,7 +153,7 @@ jobs:
           REACT_APP_ENV=production npm run build
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
-#For Backoffice
+
       - name: Login to Amazon ECR
         if: github.repository == 'backoffice' 
         id: login-ecr
@@ -163,7 +163,7 @@ jobs:
         if: github.repository == 'backoffice' 
         uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
         with:
-          ECR_REPO: ${{ inputs.ECR_REPO 
+          ECR_REPO: ${{ inputs.ECR_REPO }}
 
       - name: Set up Docker Context for Buildx
         if: github.repository == 'backoffice' 
