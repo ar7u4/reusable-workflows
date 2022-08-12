@@ -138,7 +138,7 @@ jobs:
 
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
             aws s3 sync --acl public-read ./dist/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]}/
-            aws s3 cp --acl public-read --cache-control=\"max-age=0, no-cache, no-store, must-revalidate\" ./dist/dev/index.html s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 cp --acl public-read --cache-control=\"max-age=0, no-cache, no-store\" ./dist/dev/index.html s3://${DEPLOY_BUCKETS_ARRAY[i]}/
             aws s3 cp robots.txt s3://${DEPLOY_BUCKETS_ARRAY[i]}/ --acl public-read
           done
 
