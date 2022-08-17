@@ -120,6 +120,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
       - name: Create Git Tag 
+        if: github.repository	!= 'SwipeStoxGmbH/admin-tool'
         uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ env.TAG }}
