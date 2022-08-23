@@ -28,10 +28,6 @@ on:
         type: string
         required: true
         description: 'internal dev domain'
-      INT_SXDEVIO_ELB:
-        type: string
-        required: true
-        description: 'internal dev elb'
     secrets:
       slack-bot-token:
         required: true
@@ -140,7 +136,6 @@ jobs:
           aws_route53_rr_name: ${{ env.TAG }}.int.sxdev.io
           aws_route53_rr_type: "CNAME"
           aws_route53_rr_ttl: "300"
-          aws_route53_rr_value: "${{ inputs.INT_SXDEVIO_ELB }}"
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
