@@ -136,6 +136,7 @@ jobs:
           aws_route53_rr_name: ${{ env.TAG }}.int.sxdev.io
           aws_route53_rr_type: "CNAME"
           aws_route53_rr_ttl: "300"
+          aws_route53_rr_value: "aea90ed8ead4742b6b55e1e0190e3505-0db01f49d450213a.elb.eu-west-1.amazonaws.com"
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
