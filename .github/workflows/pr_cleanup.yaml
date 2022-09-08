@@ -82,21 +82,21 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-      - name: "Delete PR DNS Record "
-        uses: Roosterfish/aws-route53-record-set-action@master
-        with: 
-          aws_access_key_id: ${{ secrets.aws-access-key-id }}
-          aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
-          aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
-          aws_route53_rr_action: "DELETE"
-          aws_route53_rr_name: ${{ env.TAG }}.int.sxdev.io
-          aws_route53_rr_type: "A"
-          aws_route53_rr_ttl: "300"
-          aws_route53_rr_value: "aea90ed8ead4742b6b55e1e0190e3505-0db01f49d450213a.elb.eu-west-1.amazonaws.com"
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      # - name: "Delete PR DNS Record "
+      #   uses: Roosterfish/aws-route53-record-set-action@master
+      #   with: 
+      #     aws_access_key_id: ${{ secrets.aws-access-key-id }}
+      #     aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
+      #     aws_route53_hosted_zone_id: ${{ inputs.HOSTED_ZONE_ID_INT }}
+      #     aws_route53_rr_action: "DELETE"
+      #     aws_route53_rr_name: ${{ env.TAG }}.int.sxdev.io
+      #     aws_route53_rr_type: "A"
+      #     aws_route53_rr_ttl: "300"
+      #     aws_route53_rr_value: "aea90ed8ead4742b6b55e1e0190e3505-0db01f49d450213a.elb.eu-west-1.amazonaws.com"
+      # - name: Checkout
+      #   uses: actions/checkout@v3
+      #   with:
+      #     ref: ${{ github.event.pull_request.head.sha }}
                 
       - name: Inject image tag into files
         run: |
