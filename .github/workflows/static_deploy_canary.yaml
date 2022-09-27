@@ -109,11 +109,11 @@ jobs:
           aws s3 cp --content-type 'application/xml' --acl public-read s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/sitemap.xml s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/sitemap.xml --metadata-directive REPLACE
           aws cloudfront create-invalidation --distribution-id ${{ inputs.CANARY_CF_DISTRIBUTION_ID }} --paths '/*'
 
-      - name: Create Git Tag 
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: ${{ env.TAG }}
-          message: ${{ env.TAG }}
+      # - name: Create Git Tag 
+      #   uses: rickstaa/action-create-tag@v1
+      #   with:
+      #     tag: ${{ env.TAG }}
+      #     message: ${{ env.TAG }}
 
       - name: Notify Slack of Success
         if: success()
