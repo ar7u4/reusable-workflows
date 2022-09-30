@@ -33,6 +33,10 @@ on:
         required: true
       dockerhub-token:
         required: true
+      gh-aws-access-key-id:
+        required: true
+      gh-aws-secret-access-key:
+        required: true
         
 jobs:
   default_build:
@@ -119,8 +123,8 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+          GH_AWS_ACCESS_KEY_ID: ${{ secrets.gh-aws-access-key-id }}
+          GH_AWS_SECRET_ACCESS_KEY: ${{ secrets.gh-aws-secret-access-key }}
 
       - name: Notify Slack of Success
         if: success()
