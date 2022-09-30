@@ -121,7 +121,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
-          AWS_DEFAULT_REGION: ${{ secrets.aws-region }}
 
       - name: Notify Slack of Success
         if: success()
