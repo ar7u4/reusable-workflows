@@ -82,14 +82,12 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: ''
-
 
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
       # This could be the subject of the next upgrade
       - name: Inject image tag into files
+        uses: actions/checkout@v3
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
