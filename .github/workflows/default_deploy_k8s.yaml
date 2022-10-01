@@ -81,7 +81,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
