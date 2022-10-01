@@ -82,6 +82,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: master 
 
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
