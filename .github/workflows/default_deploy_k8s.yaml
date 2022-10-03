@@ -82,7 +82,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
+          
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
       # This could be the subject of the next upgrade
