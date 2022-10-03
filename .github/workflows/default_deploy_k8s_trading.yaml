@@ -84,7 +84,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: List Directory
-        run: ls -la
+        run: |
+          cd .kube/main/base/
+          ls -la
 
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
