@@ -92,6 +92,7 @@ jobs:
       # Therefore the Script is executed from the step directly
       # This could be the subject of the next upgrade
       - name: Inject image tag into files
+        working-directory: ./
         run: |
           sudo apt-get update -y
           sudo apt-get install gettext -y
