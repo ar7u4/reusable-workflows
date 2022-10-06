@@ -153,15 +153,12 @@ jobs:
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
           # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
           run: |
-              for svc in ${{ matrix.path }}
-              do
                 sbtCmd="$sbtCmd ${{matrix.arg1}}/compile ${{matrix.arg1}}/universal:packageBin"
                 if [ "$unzipCmd" != "" ]
                 then
                   unzipCmd="$unzipCmd &&"
                 fi
                 unzipCmd="$unzipCmd unzip /app/${{matrix.arg2}}/target/universal/${{matrix.arg3}}-*.zip -d /dist/${{matrix.arg3}} && mv /dist/${{matrix.arg3}}/${{matrix.arg3}}-*/** /dist/${{matrix.arg3}} && rm -r /dist/${{matrix.arg3}}/${{matrix.arg3}}-*"
-              done 
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
