@@ -1,0 +1,45 @@
+name: 'Deploy using kubectl and kustomize'
+description: 'In-cluster deployment'
+
+inputs:
+  NAMESPACE:
+    description: 'Namespace for the service to be deployed at'
+    required: true
+  KUSTOMIZE_OVERLAY:
+    description: 'path to kustomize overlay'
+    required: true
+  SERVICE:
+    description: 'Service for deploy'
+    required: true
+  KUSTOMIZE_ROOT:
+    description: 'path to kustomize root'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: install kubectl, kustomize the deployment, deploy
+      shell: bash
+      run: |
+        echo "Setting up KUBECTL"
+        curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        echo "Deploying"
+        if [ ${{ inputs.SERVICE }} == 'autocopy-http-api']; then
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_ROOT }}/base/deployment.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_OVERLAY}}/limits.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_OVERLAY}}/secret.yaml
+        elif [ ${{ inputs.SERVICE }} == 'autocopy-monitor-api']; then
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_ROOT }}/base/deploymen-monitor-api.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_OVERLAY}}/limits.yaml
+        elif [ ${{ inputs.SERVICE }} == 'autocopy-signal-broker']; then
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_ROOT }}/base/deploymen-signal-broker.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_OVERLAY}}/limits.yaml
+        elif [ ${{ inputs.SERVICE }} == 'autocopy-worker']; then
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_ROOT }}/base/deploymen-worker.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_OVERLAY}}/limits.yaml
+          kubectl apply -n ${{ inputs.NAMESPACE }} -f ${{ inputs.KUSTOMIZE_ROOT}}/serbice-monitor.yaml
+        else
+          kubectl apply -n ${{ inputs.NAMESPACE }} -k ${{ inputs.KUSTOMIZE_OVERLAY}}
+        fi
