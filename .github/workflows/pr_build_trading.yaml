@@ -12,14 +12,6 @@ on:
         type: string
         required: true
         description: '#gh-build - Message ID'
-      NODE_VERSION:
-        type: string
-        required: true
-        description: 'node version'
-      NODE_REGISTRY_URL:
-        type: string
-        required: true
-        description: 'custom node registry'
       ECR_REPO:
         type: string
         required: true
@@ -28,7 +20,7 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-    secrets:
+     secrets:
       slack-bot-token:
         required: true
       aws-access-key-id:
@@ -37,13 +29,11 @@ on:
         required: true
       aws-region:
         required: true
-      naga-npm-token:
-        required: true
       dockerhub-username:
         required: true
       dockerhub-token:
         required: true
-       gh-aws-access-key-id:
+      gh-aws-access-key-id:
         required: true
       gh-aws-secret-access-key:
         required: true
