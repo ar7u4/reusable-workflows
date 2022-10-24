@@ -2,6 +2,7 @@ name: "Build and Push"
 
 on:
   workflow_call:
+  
     inputs:
       SLACK_BUILD_CHANNEL_ID:
         type: string
