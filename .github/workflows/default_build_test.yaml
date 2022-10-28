@@ -62,7 +62,7 @@ jobs:
       
       - name: Set output variables
         id: set_output_variables
-        shell: pwsh
+        shell: bash
         run: |
           $attempt = [int]$env:GITHUB_RUN_ATTEMPT
           $maxAttempts = [int]$env:maxAttempts
