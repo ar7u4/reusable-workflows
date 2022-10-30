@@ -48,7 +48,6 @@ jobs:
     outputs:
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
-      MENTION_GROUP: ${{ env.MENTION_GROUP }}
       nextAttempt: ${{ steps.set_output_variables.outputs.nextAttempt }}
       maxAttempts: ${{ steps.set_output_variables.outputs.maxAttempts }}      
 
@@ -60,7 +59,6 @@ jobs:
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
-          echo "MENTION_GROUP=${MENTION_GROUP}" >> $GITHUB_ENV
           
       # - name: Set output variables
       #   id: set_output_variables
@@ -172,7 +170,7 @@ jobs:
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
-            - Group: @${{ env.MENTION_GROUP}}
+            - Group: @${{ inputs.MENTION_GROUP}}
           color: danger
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
