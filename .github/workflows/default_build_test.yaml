@@ -2,6 +2,7 @@ name: "Build and Push"
 
 on:
   workflow_call:
+    
     inputs:
       SLACK_BUILD_CHANNEL_ID:
         type: string
@@ -19,10 +20,10 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      MENTION_GROUP:
-         type: string
-        required: true
-        description: 'Group which will be notified for result of GHA workflow'     
+      # MENTION_GROUP:
+      #    type: string
+      #   required: true
+      #   description: 'Group which will be notified for result of GHA workflow'     
     secrets:
       slack-bot-token:
         required: true
