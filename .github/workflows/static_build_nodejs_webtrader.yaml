@@ -117,9 +117,9 @@ jobs:
           mkdir -p ~/.npm-global/lib
           npm install -g npm@7.3.0
           npm ci
-          CI=false npm run build
+          CI=false GENERATE_SOURCEMAP=false npm run build
           mv build dev_build
-          REACT_APP_ENV=production CI=false npm run build
+          REACT_APP_ENV=production CI=false GENERATE_SOURCEMAP=false npm run build
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
           ls build
