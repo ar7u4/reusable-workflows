@@ -111,11 +111,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
+          java-package: jre
+          cache: sbt
 
       - name: Clean and assembly
         if: github.repository	== 'SwipeStoxGmbH/swipestox-notifications-api'
-        with:
-          ECR_IMAGE: ${{ inputs.ECR_IMAGE }}
+        shell: bash
         run: |
           -u root
           rm -rf target
