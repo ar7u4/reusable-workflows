@@ -114,6 +114,8 @@ jobs:
 
       - name: Clean and assembly
         if: github.repository	== 'SwipeStoxGmbH/swipestox-notifications-api'
+        with:
+          ECR_IMAGE: ${{ inputs.ECR_IMAGE }}
         run: |
           -u root
           rm -rf target
