@@ -106,7 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup JDK
+      - name: Setup JRE
         uses: actions/setup-java@v3.6.0
         with:
           distribution: temurin
@@ -114,13 +114,13 @@ jobs:
           java-package: jre
           cache: sbt
 
-      - name: Clean and assembly
-        if: github.repository	== 'SwipeStoxGmbH/swipestox-notifications-api'
-        shell: bash
-        run: |
-          -u root
-          rm -rf target
-          /root/sbt/bin/sbt clean assembly
+      # - name: Clean and assembly
+      # if: github.repository	== 'SwipeStoxGmbH/swipestox-notifications-api'
+      #   shell: bash
+      #   run: |
+      #     -u root
+      #     rm -rf target
+      #     /root/sbt/bin/sbt clean assembly
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
