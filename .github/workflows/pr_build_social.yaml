@@ -1,8 +1,7 @@
-name: "Build and Push"
+name: "PR Build and Push"
 
 on:
   workflow_call:
-
     inputs:
       SLACK_BUILD_CHANNEL_ID:
         type: string
@@ -20,10 +19,6 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      ECR_IMAGE:
-        type: string
-        required: true
-        description: 'Scala image for build'
     secrets:
       slack-bot-token:
         required: true
@@ -41,20 +36,20 @@ on:
         required: true
       gh-aws-secret-access-key:
         required: true
-        
+
 jobs:
-  default_build:
+  pr_build:
     runs-on: small-runner
     outputs:
       TAG: ${{ env.TAG }}
+      RUN: ${{ env.RUN }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
-    
+      
     steps:
       - name: Set environment variables
         run: |
-          echo "SHORT_COMMIT=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
+          echo "RUN=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
@@ -63,7 +58,7 @@ jobs:
         with:
           username: ${{ secrets.dockerhub-username }}
           password: ${{ secrets.dockerhub-token }}
-
+ 
       - name: Notify Slack of Build
         id: gh-build
         uses: voxmedia/github-action-slack-notify-build@v2
@@ -71,8 +66,9 @@ jobs:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: |
-            Starting Image Build
+            Starting PR Image Build
 
+            - Run: ${{ env.RUN }}
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
@@ -81,8 +77,10 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Checkout
-        uses: actions/checkout@v1
- 
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
@@ -102,10 +100,7 @@ jobs:
         uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
-     
-      - name: Checkout
-        uses: actions/checkout@v2
-
+      
       - name: Setup JRE
         uses: actions/setup-java@v3.6.0
         with:
@@ -138,7 +133,7 @@ jobs:
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
           # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
-          tags: |
+          TAGs: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
       - name: Notify Slack of Success
@@ -148,14 +143,15 @@ jobs:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: |
-            Image Build Completed
+            PR Image Build Completed
 
+            - Run: ${{ env.RUN }}
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: good
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Notify Slack of Failure
         if: failure()
@@ -164,11 +160,12 @@ jobs:
           channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
           message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
           status: |
-            Image Build Failed 
+            PR Image Build Failed
 
+            - Run: ${{ env.RUN }}
             - Image Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: danger
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
