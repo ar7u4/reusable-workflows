@@ -28,10 +28,6 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      SECOND_DOCKERFILE_PATH:
-        type: string
-        required: true
-        description: 'Path to second Dockerfile'
     secrets:
       slack-bot-token:
         required: true
@@ -131,11 +127,11 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
       
-      - name: Build and push other image
+      - name: Build and push celery image
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: .${{ inputs.SECOND_DOCKERFILE_PATH }}
+          file: ./scraper/Dockerfile
           push: true
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
