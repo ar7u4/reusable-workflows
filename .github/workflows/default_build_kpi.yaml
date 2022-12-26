@@ -1,5 +1,4 @@
 name: "Build and Push"
-name: "Build and Push"
 
 on:
   workflow_call:
