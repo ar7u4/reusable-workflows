@@ -20,10 +20,10 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      MENTION_GROUP:
-        type: string
-        required: true
-        description: 'Group which will be notified for result of GHA workflow'     
+      # MENTION_GROUP:
+      #   type: string
+      #   required: true
+      #   description: 'Group which will be notified for result of GHA workflow'     
     secrets:
       slack-bot-token:
         required: true
@@ -77,21 +77,33 @@ jobs:
           username: ${{ secrets.dockerhub-username }}
           password: ${{ secrets.dockerhub-token }}
 
-      - name: Notify Slack of Build
-        id: gh-build
-        uses: voxmedia/github-action-slack-notify-build@v2
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Starting Image Build
+      # - name: Notify Slack of Build
+      #   id: gh-build
+      #   uses: voxmedia/github-action-slack-notify-build@v2
+      #   with:
+      #     channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+      #     message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+      #     status: |
+      #       Starting Image Build
 
-            - Image Tag: ${{ env.TAG }}
-            - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ env.JOB_URL }}
-          color: 0037FF
+      #       - Image Tag: ${{ env.TAG }}
+      #       - Actor: ${{ env.GITHUB_ACTOR }}
+      #       - Job URL: ${{ env.JOB_URL }}
+      #     color: 0037FF
+      #   env:
+      #     SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Notify Slack of Build 
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
+          SLACK_COLOR: 0037FF
+          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
+          SLACK_TITLE: Status
+          SLACK_USERNAME: GHActions
+          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -144,36 +156,56 @@ jobs:
 
       - name: Notify Slack of Success
         if: success()
-        uses: voxmedia/github-action-slack-notify-build@v2
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Image Build Completed
-
-            - Image Tag: ${{ env.TAG }}
-            - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ env.JOB_URL }}
-          color: good
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
+          SLACK_COLOR: good
+          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
+          SLACK_TITLE: Status
+          SLACK_USERNAME: GHActions
+          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
+        # uses: voxmedia/github-action-slack-notify-build@v2
+        # with:
+        #   channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+        #   message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+        #   status: |
+        #     Image Build Completed
+
+        #     - Image Tag: ${{ env.TAG }}
+        #     - Actor: ${{ env.GITHUB_ACTOR }}
+        #     - Job URL: ${{ env.JOB_URL }}
+        #   color: good
+        # env:
+        #   SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
       - name: Notify Slack of Failure
         if: failure()
-        uses: voxmedia/github-action-slack-notify-build@v2
-        with:
-          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          status: |
-            Image Build Failed 
-
-            - Image Tag: ${{ env.TAG }}
-            - Actor: ${{ env.GITHUB_ACTOR }}
-            - Job URL: ${{ env.JOB_URL }}
-            - Group: @${{ inputs.MENTION_GROUP}}
-          color: danger
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
+          SLACK_TITLE: Status
+          SLACK_USERNAME: GHActions
+          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
+        # uses: voxmedia/github-action-slack-notify-build@v2
+        # with:
+        #   channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+        #   message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+        #   status: |
+        #     Image Build Failed 
+
+        #     - Image Tag: ${{ env.TAG }}
+        #     - Actor: ${{ env.GITHUB_ACTOR }}
+        #     - Job URL: ${{ env.JOB_URL }}
+        #     - Group: @${{ inputs.MENTION_GROUP}}
+        #   color: danger
+        # env:
+        #   SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
 
   # rerun_workflow_job:
   #   name: Rerun ${{ github.run_id }}
