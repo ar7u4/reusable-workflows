@@ -75,7 +75,7 @@ jobs:
 
       - name: Notify Slack of Deploy
         id: gh-deploy-dev
-        uses: voxmedia/github-action-slack-notify-build@v2
+        uses: voxmedia/github-action-slack-notify-build@v1.6.0
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: |
@@ -169,7 +169,7 @@ jobs:
       
       - name: Notify Slack of Success
         if: success()
-        uses: voxmedia/github-action-slack-notify-build@v2
+        uses: voxmedia/github-action-slack-notify-build@v1.6.0
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
@@ -187,7 +187,7 @@ jobs:
 
       - name: Notify Slack of Failure
         if: failure()
-        uses: voxmedia/github-action-slack-notify-build@v2
+        uses: voxmedia/github-action-slack-notify-build@v1.6.0
         with:
           channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
