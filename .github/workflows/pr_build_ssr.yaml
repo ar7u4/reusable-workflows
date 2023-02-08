@@ -116,26 +116,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
-      - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/web-trader'
-        run: |
-          mkdir -p ~/.npm-global/lib
-          npm install -g npm@7.3.0
-          npm ci
-          CI=false REACT_APP_PR_BUILD=1 npm run build
-          mv build dev_build
-          mkdir build; mv dev_build build/dev
-
-      - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/admin-tool'
-        run: |
-          mkdir ~/.npm-global
-          npm install
-          rm -rf dev_build build
-          npm run build
-          mv build dev_build
-          mkdir build; mv dev_build build/dev
-
       - name: Set up Docker Context for Buildx
         id: buildx-context
         run: |
@@ -143,7 +123,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2.4.1
         with:
           version: latest
           endpoint: builders
