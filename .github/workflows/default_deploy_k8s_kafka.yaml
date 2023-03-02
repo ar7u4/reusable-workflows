@@ -94,14 +94,6 @@ jobs:
       # This step causes issues when used as a composite action
       # Therefore the Script is executed from the step directly
       # This could be the subject of the next upgrade
-
-      - name: Create and deploy configmaps 
-        uses: SwipeStoxGmbH/reusable-workflows/actions/create-configmap@master
-        with:
-          NAMESPACE: ${{ inputs.NAMESPACE }}
-          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
-          KAFKA_CONFIG_PATH: ${{ inputs.KAFKA_CONFIG_PATH }}
-          KAFKA_SERVICE_NAME: ${{ inputs.KAFKA_SERVICE_NAME }}
           
       - name: Inject image tag into files
         run: |
@@ -118,6 +110,14 @@ jobs:
           done
         env:
           PATTERN: $TAG 
+
+      - name: Create and deploy configmaps 
+        uses: SwipeStoxGmbH/reusable-workflows/actions/create-configmap@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+          KAFKA_CONFIG_PATH: ${{ inputs.KAFKA_CONFIG_PATH }}
+          KAFKA_SERVICE_NAME: ${{ inputs.KAFKA_SERVICE_NAME }}
 
       # Deploy the branch to the namespace defined in the resource YAMLs
       - name: Deploy
