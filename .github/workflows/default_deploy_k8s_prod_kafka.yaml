@@ -103,7 +103,9 @@ jobs:
         with:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
-
+          KAFKA_CONFIG_PATH: ${{ inputs.KAFKA_CONFIG_PATH }}
+          KAFKA_SERVICE_NAME: ${{ inputs.KAFKA_SERVICE_NAME }}
+          
       - name: Checkout
         uses: actions/checkout@v3
 
