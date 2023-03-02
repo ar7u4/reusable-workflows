@@ -25,5 +25,5 @@ runs:
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
         echo "Deploying"
-        kubectl create configmap ${{ inputs.KAFKA_SERVICE_NAME }} -n ${{ inputs.NAMESPACE }} --from-file=${{ inputs.KAFKA_CONFIG_PATH }} 
+        kubectl create configmap ${{ inputs.KAFKA_SERVICE_NAME }} --from-file=${{ inputs.KAFKA_CONFIG_PATH }} -n ${{ inputs.NAMESPACE }}
 
