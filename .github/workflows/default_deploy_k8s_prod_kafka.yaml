@@ -32,6 +32,14 @@ on:
         type: string
         required: true
         description: 'CloudFront invalidations paths'
+      KAFKA_CONFIG_PATH:
+        type: string
+        required: true
+        description: 'Kafka Ignite configuration files'
+      KAFKA_SERVICE_NAME:
+        type: string
+        required: true
+        description: 'Kafka Ignite service name'
     secrets:
       slack-bot-token:
         required: true
@@ -53,14 +61,14 @@ jobs:
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
 
     steps:
-      # - name: Check image tag 
-      #   run: | 
-      #     if [[ ! ${{ inputs.IMAGE_TAG }} =~ ^[a-z]+[-] ]] ; then 
-      #       echo 'Invalid Image Tag'
-      #       echo 'must be in {BRANCH_NAME}-{SHA} format'
-      #       echo 'etc: master-2b7f922'
-      #       exit 1
-      #     fi
+      - name: Check image tag 
+        run: | 
+          if [[ ! ${{ inputs.IMAGE_TAG }} =~ ^[a-z]+[-] ]] ; then 
+            echo 'Invalid Image Tag'
+            echo 'must be in {BRANCH_NAME}-{SHA} format'
+            echo 'etc: master-2b7f922'
+            exit 1
+          fi
     
       - name: Set environment variables
         run: |
@@ -89,6 +97,12 @@ jobs:
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Create and deploy configmaps 
+        uses: SwipeStoxGmbH/reusable-workflows/actions/create-configmap@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
       - name: Checkout
         uses: actions/checkout@v3

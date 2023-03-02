@@ -1,0 +1,29 @@
+name: 'Create and deploy configmap using kubectl and kustomize'
+description: 'In-cluster deployment'
+
+inputs:
+  NAMESPACE:
+    description: 'Namespace for the service to be deployed at'
+    required: true
+  KUSTOMIZE_OVERLAY:
+    description: 'path to kustomize overlay'
+    required: true
+  KAFKA_CONFIG_PATH:
+    required: true
+    description: 'Kafka Ignite configuration files'
+  KAFKA_SERVICE_NAME:
+    required: true
+    description: 'Kafka Ignite service name'
+runs:
+  using: "composite"
+  steps:
+    - name: install kubectl, kustomize the deployment, deploy
+      shell: bash
+      run: |
+        echo "Setting up KUBECTL"
+        curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        echo "Deploying"
+        kubectl create configmap ${{ inputs.KAFKA_SERVICE_NAME }} -n ${{ inputs.NAMESPACE }} --from-file=${{ inputs.KAFKA_CONFIG_PATH }} 
+
