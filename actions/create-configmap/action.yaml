@@ -25,6 +25,6 @@ runs:
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
         echo "Deploying"
-        kubectl remove configmap ${{ inputs.KAFKA_SERVICE_NAME }} -n ${{ inputs.NAMESPACE }}
+        kubectl delete configmap ${{ inputs.KAFKA_SERVICE_NAME }} -n ${{ inputs.NAMESPACE }}
         kubectl create configmap ${{ inputs.KAFKA_SERVICE_NAME }} --from-file=${{ inputs.KAFKA_CONFIG_PATH }} -n ${{ inputs.NAMESPACE }}
 
