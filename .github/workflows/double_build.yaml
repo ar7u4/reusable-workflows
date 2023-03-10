@@ -45,6 +45,10 @@ on:
         required: true
       dockerhub-token:
         required: true
+      gh-aws-access-key-id:
+        required: true
+      gh-aws-secret-access-key:
+        required: true
         
 jobs:
   default_build:
