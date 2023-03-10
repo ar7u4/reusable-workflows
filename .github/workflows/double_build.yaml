@@ -141,6 +141,9 @@ jobs:
       - name: Build and push other image
         uses: docker/build-push-action@v3
         with:
+          build-args: |
+            AWS_ACCESS_KEY_ID=${{ secrets.gh-aws-access-key-id }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.gh-aws-secret-access-key }}
           context: .
           file: .${{ inputs.SECOND_DOCKERFILE_PATH }}
           push: true
