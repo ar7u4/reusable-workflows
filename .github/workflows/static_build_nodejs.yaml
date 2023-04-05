@@ -121,17 +121,17 @@ jobs:
           ls build
 
       - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/backoffice'
+        if: github.repository == 'SwipeStoxGmbH/naga-invest-markets'
         run: |
           mkdir -p ~/.npm-global
-          npm install -g gulp-cli gulp bower
+          npm install -g gulp 
           npm install
-          bower install
-          gulp build --env=dev
+          ~/.npm-global/bin/gulp build
           mv dist dev_build
-          gulp build --env=prod
+          ~/.npm-global/bin/gulp build NODE_ENV=production
           mv dist production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
+          cp robots.txt build/production/robots.txt 
           ls build
 
       - name: Build App
