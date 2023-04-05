@@ -126,9 +126,9 @@ jobs:
           mkdir -p ~/.npm-global
           npm install -g gulp 
           npm install
-          ~/.npm-global/bin/gulp build
+          gulp build
           mv dist dev_build
-          ~/.npm-global/bin/gulp build NODE_ENV=production
+          gulp build NODE_ENV=production
           mv dist production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
           cp robots.txt build/production/robots.txt 
