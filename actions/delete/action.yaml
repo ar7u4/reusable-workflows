@@ -20,4 +20,4 @@ runs:
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
         echo "Deleting"
-        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kubectl apply -k . | kubectl delete -n ${{ inputs.NAMESPACE }} -f -
+        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kubectl apply -k . --dry-run=client -o name | xargs kubectl delete -n ${{ inputs.NAMESPACE }}
