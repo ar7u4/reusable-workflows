@@ -12,16 +12,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: install kubectl, kustomize the deployment, deploy
+    - name: install kubectl, kustomize the deployment, delete
       shell: bash
       run: |
         echo "Setting up KUBECTL"
         curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kubectl
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
-        echo "Installing Kustomize"
-        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-        chmod +x ./kustomize
-        sudo mv ./kustomize /usr/local/bin/
-        echo "Deploying"
-        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kubectl kustomize . | kubectl delete -n ${{ inputs.NAMESPACE }} -f -
+        echo "Deleting"
+        cd ${{ inputs.KUSTOMIZE_OVERLAY }} && kubectl apply -k . | kubectl delete -n ${{ inputs.NAMESPACE }} -f -
