@@ -125,14 +125,12 @@ jobs:
         run: |
           npm install -g gulp
           npm install
-          mkdir -p dist
-          rm -rf dist/dev
-          NODE_ENV=staging BUILD_DEST=dist/dev gulp build
-          ls dist/dev
-          rm -rf dist/production
-          NODE_ENV=production BUILD_DEST=dist/production gulp build
-          cp robots.txt dist/production/robots.txt
-          ls dist/production
+          mkdir -p build
+          rm -rf build/dev
+          NODE_ENV=staging BUILD_DEST=build/dev gulp build
+          rm -rf build/production
+          NODE_ENV=production BUILD_DEST=build/production gulp build
+          cp robots.txt build/production/robots.txt
 
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/admin-tool'
