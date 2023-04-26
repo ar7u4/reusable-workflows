@@ -123,16 +123,16 @@ jobs:
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/naga-invest-markets'
         run: |
-          mkdir -p ~/.npm-global
-          npm install -g gulp 
+          npm install -g gulp
           npm install
-          gulp build
-          mv dist dev_build
-          gulp build NODE_ENV=production
-          mv dist production_build
-          mkdir build; mv dev_build build/dev; mv production_build build/production
-          cp robots.txt build/production/robots.txt 
-          ls build
+          mkdir -p dist
+          rm -rf dist/dev
+          NODE_ENV=staging BUILD_DEST=dist/dev gulp build
+          ls dist/dev
+          rm -rf dist/production
+          NODE_ENV=production BUILD_DEST=dist/production gulp build
+          cp robots.txt dist/production/robots.txt
+          ls dist/production
 
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/admin-tool'
