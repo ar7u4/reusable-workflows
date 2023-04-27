@@ -105,7 +105,7 @@ jobs:
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
       - name: Copy from Archive
-        if: github.repository	== 'SwipeStoxGmbH/backoffice'
+        if: github.repository	== 'SwipeStoxGmbH/naga-invest-markets'
         run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
@@ -130,7 +130,7 @@ jobs:
           done
 
       - name: Deploy and Invalidate CF
-        if: github.repository == 'SwipeStoxGmbH/backoffice'
+        if: github.repository == 'SwipeStoxGmbH/naga-invest-markets'
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
