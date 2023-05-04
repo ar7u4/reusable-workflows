@@ -119,11 +119,11 @@ jobs:
           NAMESPACE: ${{ inputs.NAMESPACE }}
           KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
 
-      - name: Restart deployment
-        if: github.event.action == 'synchronize'
-        uses: SwipeStoxGmbH/reusable-workflows/actions/restart-deployment@master
-        with:
-          KUSTOMIZE_ROOT: ${{ inputs.KUSTOMIZE_ROOT }}
+      # - name: Restart deployment
+      #   if: github.event.action == 'synchronize'
+      #   uses: SwipeStoxGmbH/reusable-workflows/actions/restart-deployment@master
+      #   with:
+      #     KUSTOMIZE_ROOT: ${{ inputs.KUSTOMIZE_ROOT }}
 
       # - name: "Create PR DNS Record "
       #   if: github.event.action != 'synchronize'
