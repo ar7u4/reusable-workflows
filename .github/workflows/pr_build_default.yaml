@@ -96,14 +96,6 @@ jobs:
         uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
-      
-      - name: Setup JRE
-        uses: actions/setup-java@v3.6.0
-        with:
-          distribution: temurin
-          java-version: 8
-          java-package: jre
-          cache: sbt
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
