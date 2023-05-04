@@ -10,17 +10,16 @@ inputs:
     required: true
     description: 'Image tag to deploy'
 
-
 runs:
   using: "composite"
   steps:
     - name: Check image tag exist on ECR
-         run: |
-          IMAGE_META="$( aws ecr describe-images --repository-name=${{ inputs.ECR_REPO }} --image-ids=imageTag=${{ inputs.IMAGE_TAG }} 2> /dev/null )"
-          if [[ $? == 0 ]]; then
-              IMAGE_TAGS="$( echo ${IMAGE_META} | jq '.imageDetails[0].imageTags[0]' -r )"
-              echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} found"
-          else
-              echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} not found"
-              exit 1
-          fi
+      run: |
+        IMAGE_META="$( aws ecr describe-images --repository-name=${{ inputs.ECR_REPO }} --image-ids=imageTag=${{ inputs.IMAGE_TAG }} 2> /dev/null )"
+        if [[ $? == 0 ]]; then
+            IMAGE_TAGS="$( echo ${IMAGE_META} | jq '.imageDetails[0].imageTags[0]' -r )"
+            echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} found"
+        else
+            echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} not found"
+            exit 1
+        fi
