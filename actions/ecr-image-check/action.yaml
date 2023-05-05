@@ -16,11 +16,9 @@ runs:
     - name: Check image tag exist on ECR
       shell: bash
       run: |
-        IMAGE_META="$( aws ecr describe-images --repository-name=${{ inputs.ECR_REPO }} --image-ids=imageTag=${{ inputs.IMAGE_TAG }} 2> /dev/null )"
-        if [[ $? == 0 ]]; then
-            IMAGE_TAGS="$( echo ${IMAGE_META} | jq '.imageDetails[0].imageTags[0]' -r )"
-            echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} found"
+        if aws ecr describe-images --repository-name ${{ inputs.ECR_REPO }} --image-ids imageTag=${{ inputs.IMAGE_TAG }} > /dev/null 2>&1; then
+          echo "ECR image exists!"
         else
-            echo "${{ inputs.ECR_REPO }}:${{ inputs.IMAGE_TAG }} not found"
-            exit 1
+          echo "ECR image does not exist!"
+          exit 1
         fi
