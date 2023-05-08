@@ -6,6 +6,9 @@ inputs:
   ECR_REPO:
     description: AWS ECR Repository
     required: true
+  ECR_ID:
+    description: AWS ECR account ID
+    required: true  
   IMAGE_TAG:
     required: true
     description: 'Image tag to deploy'
@@ -16,7 +19,7 @@ runs:
     - name: Check image tag exist on ECR
       shell: bash
       run: |
-        if aws ecr describe-images --repository-name ${{ inputs.ECR_REPO }} --image-ids imageTag=${{ inputs.IMAGE_TAG }} > /dev/null 2>&1; then
+        if aws ecr describe-images --registry-id ${{ inputs.ECR_ID )) --repository-name ${{ inputs.ECR_REPO }} --image-ids imageTag=${{ inputs.IMAGE_TAG }} > /dev/null 2>&1; then
           echo "ECR image exists!"
         else
           echo "ECR image does not exist!"
