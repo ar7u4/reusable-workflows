@@ -116,7 +116,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
       - name: Build App
-        if: github.repository	== 'SwipeStoxGmbH/web-trader'
+        if: github.repository	== 'SwipeStoxGmbH/naga-landing'
         run: |
           mkdir -p ~/.npm-global/lib
           npm install -g npm@7.3.0
@@ -127,32 +127,6 @@ jobs:
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
           ls build
-
-      - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/backoffice'
-        run: |
-          mkdir -p ~/.npm-global
-          npm install -g gulp-cli gulp bower
-          npm install
-          bower install
-          gulp build --env=dev
-          mv dist dist_dev
-          gulp build --env=prod
-          mv dist dist_production
-          mkdir dist; mv dist_dev dist/dev; mv dist_production dist/production
-          ls dist
-
-      - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/admin-tool'
-        run: |
-          mkdir ~/.npm-global
-          npm install
-          rm -rf dev_build production_build build
-          npm run build
-          mv build dev_build
-          REACT_APP_ENV=production npm run build
-          mv build production_build
-          mkdir build; mv dev_build build/dev; mv production_build build/production
 
       - name: Login to Amazon ECR
         id: login-ecr
