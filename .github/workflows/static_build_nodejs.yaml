@@ -142,9 +142,9 @@ jobs:
           mv dist dist_staging
           npx gulp --env production
           mv dist dist_production
-          mkdir dist
-          mv dist_staging dist/staging
-          mv dist_production dist/production
+          mkdir build
+          mv dist_staging build/staging
+          mv dist_production build/production
           
       - name: Archive
         run: |
