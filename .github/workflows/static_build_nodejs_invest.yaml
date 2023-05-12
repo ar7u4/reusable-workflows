@@ -36,6 +36,14 @@ on:
         type: string
         required: true
         description: 'archive bucket'
+      LAMBDA_ARCHIVE_BUCKET:
+        type: string
+        required: true
+        description: 'Lambda archive bucket'
+      LAMBDA_BUCKET_REGION:
+        type: string
+        required: true
+        description: 'Lambda AWS Region'
       SERVICE_NAME:
         type: string
         required: true
@@ -118,15 +126,21 @@ jobs:
       - name: Build App
         if: github.repository	== 'SwipeStoxGmbH/naga-landing'
         run: |
-          mkdir -p ~/.npm-global/lib
-          npm install -g npm@7.3.0
-          npm ci
-          CI=false npm run build
-          mv build dev_build
-          REACT_APP_ENV=production CI=false npm run build
-          mv build production_build
-          mkdir build; mv dev_build build/dev; mv production_build build/production
-          ls build
+          npm install -g gulp
+          npm install
+          mkdir -p build
+          rm -rf build/dev
+          NODE_ENV=staging BUILD_DEST=build/dev ~/.npm-global/bin/gulp build
+          rm -rf build/production
+          NODE_ENV=production BUILD_DEST=build/production ~/.npm-global/bin/gulp build
+          cp robots.txt build/production/robots.txt
+          rm -rf *.zip
+          zip -r "${{ env.CLOUDFRONT_SITE }}OriginRequest-development-${{ env.TAG }}.zip" lambda/development/origin-request/*.js
+          zip -r "${{ env.CLOUDFRONT_SITE }}OriginResponse-development-${{ env.TAG }}.zip" lambda/development/origin-response/*.js
+          zip -r "${{ env.CLOUDFRONT_SITE }}ViewerRequest-development-${{ env.TAG }}.zip" lambda/development/viewer-request/*.js
+          zip -r "${{ env.CLOUDFRONT_SITE }}OriginRequest-production-${{ env.TAG }}.zip" lambda/production/origin-request/*.js
+          zip -r "${{ env.CLOUDFRONT_SITE }}OriginResponse-production-${{ env.TAG }}.zip" lambda/production/origin-response/*.js
+          zip -r "${{ env.CLOUDFRONT_SITE }}ViewerRequest-production-${{ env.TAG }}.zip" lambda/production/viewer-request/*.js
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -163,9 +177,10 @@ jobs:
 
       - name: Archive
         run: |
-          tar cvzf ${{ env.TAG }}.tar.gz ./dist
+          tar cvzf ${{ env.TAG }}.tar.gz ./build
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
-
+          # Archive lambda 
+          aws s3 cp . s3://${{ env.LAMBDA_ARCHIVE_BUCKET }}/${{ env.CLOUDFRONT_SITE }} --region ${{ env.LAMBDA_BUCKET_REGION }} --recursive --exclude '*' --include '*.zip' --exclude '*/*' --no-progress
       - name: Notify Slack of Success 
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
