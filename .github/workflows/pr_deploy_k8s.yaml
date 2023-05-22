@@ -54,6 +54,7 @@ jobs:
     outputs:
       TAG: ${{ env.TAG }}
       RUN: ${{ env.RUN }}
+      IMAGE_TAG: ${{ env.IMAGE_TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
 
     steps:
@@ -62,8 +63,10 @@ jobs:
         run: |
           RUN=pr-${{ github.event.number }}-${{ github.run_number }}
           TAG=pr-${{ github.event.number }}
+          IMAGE_TAG=pr-${{ github.event.number }}-${{ github.run_number }}
           echo "TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
           echo "RUN=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
@@ -82,7 +85,7 @@ jobs:
             Deploying PR Image on DEV
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ env.TAG }}
+            - Image Tag: ${{ env.IMAGE_TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: 0037FF
@@ -177,7 +180,7 @@ jobs:
             PR Deployed on DEV
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ env.TAG }}
+            - Image Tag: ${{ env.IMAGE_TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - PR URL: https://${{ env.TAG }}.${{ inputs.DOMAIN_INT }}
             - Job URL: ${{ env.JOB_URL }}
@@ -195,7 +198,7 @@ jobs:
             PR Deployment Failed 
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ env.TAG }}
+            - Image Tag: ${{ env.IMAGE_TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: danger
