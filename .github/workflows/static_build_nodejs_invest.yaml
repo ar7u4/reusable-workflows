@@ -48,6 +48,10 @@ on:
         type: string
         required: true
         description: 'service name'
+      CLOUDFRONT_SITE:
+        type: string
+        required: true
+        description: 'Cloudfront site'
     secrets:
       slack-bot-token:
         required: true
@@ -181,6 +185,7 @@ jobs:
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
           # Archive lambda 
           aws s3 cp . s3://${{ env.LAMBDA_ARCHIVE_BUCKET }}/${{ env.CLOUDFRONT_SITE }} --region ${{ env.LAMBDA_BUCKET_REGION }} --recursive --exclude '*' --include '*.zip' --exclude '*/*' --no-progress
+      
       - name: Notify Slack of Success 
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
