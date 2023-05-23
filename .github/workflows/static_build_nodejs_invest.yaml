@@ -160,7 +160,7 @@ jobs:
           tar cvzf ${{ env.TAG }}.tar.gz ./build
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
           # Archive lambda 
-          aws s3 cp . s3://${{ inputs.LAMBDA_ARCHIVE_BUCKET }}/${{ inputs.CLOUDFRONT_SITE }} --region ${{ inputs.LAMBDA_BUCKET_REGION }} --recursive --exclude '*' --include '*.zip' --exclude '*/*' --no-progress
+          # aws s3 cp . s3://${{ inputs.LAMBDA_ARCHIVE_BUCKET }}/${{ inputs.CLOUDFRONT_SITE }} --region ${{ inputs.LAMBDA_BUCKET_REGION }} --recursive --exclude '*' --include '*.zip' --exclude '*/*' --no-progress
       
       - name: Notify Slack of Success 
         if: success()
