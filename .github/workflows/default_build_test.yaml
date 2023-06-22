@@ -97,17 +97,21 @@ jobs:
       #   env:
       #     SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
-      - name: Notify Slack of Build 
-        uses: rtCamp/action-slack-notify@v2
+      - name: Notify Slack of Build
+        id: gh-build
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+            Starting Image Build
+
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: 0037FF
         env:
-          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
-          SLACK_COLOR: 0037FF
-          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
-          SLACK_TITLE: Status
-          SLACK_USERNAME: GHActions
-          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -163,60 +167,37 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
 
-
       - name: Notify Slack of Success
         if: success()
-        uses: rtCamp/action-slack-notify@v2
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+            Image Build Completed
+    
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: good
         env:
-          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
-          SLACK_COLOR: good
-          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
-          SLACK_TITLE: Status
-          SLACK_USERNAME: GHActions
-          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
-        # uses: voxmedia/github-action-slack-notify-build@v2
-        # with:
-        #   channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-        #   message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-        #   status: |
-        #     Image Build Completed
-
-        #     - Image Tag: ${{ env.TAG }}
-        #     - Actor: ${{ env.GITHUB_ACTOR }}
-        #     - Job URL: ${{ env.JOB_URL }}
-        #   color: good
-        # env:
-        #   SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
-
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+    
       - name: Notify Slack of Failure
         if: failure()
-        uses: rtCamp/action-slack-notify@v2
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
+          message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
+          status: |
+                Image Build Failed 
+    
+                - Image Tag: ${{ env.TAG }}
+                - Actor: ${{ env.GITHUB_ACTOR }}
+                - Job URL: ${{ env.JOB_URL }}
+          color: danger
         env:
-          SLACK_CHANNEL: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-          SLACK_ICON: https://avatars.githubusercontent.com/u/44036562?s=200&v=4
-          SLACK_COLOR: danger
-          SLACK_MESSAGE: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-          SLACK_MSG_AUTHOR: ${{ env.GITHUB_ACTOR }}
-          SLACK_TITLE: Status
-          SLACK_USERNAME: GHActions
-          SLACK_WEBHOOK: ${{ secrets.slack-bot-tokem }}
-        # uses: voxmedia/github-action-slack-notify-build@v2
-        # with:
-        #   channel_id: ${{ inputs.SLACK_BUILD_CHANNEL_ID }}
-        #   message_id: ${{ inputs.SLACK_BUILD_MESSAGE_ID }}
-        #   status: |
-        #     Image Build Failed 
-
-        #     - Image Tag: ${{ env.TAG }}
-        #     - Actor: ${{ env.GITHUB_ACTOR }}
-        #     - Job URL: ${{ env.JOB_URL }}
-        #     - Group: @${{ inputs.MENTION_GROUP}}
-        #   color: danger
-        # env:
-        #   SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
-
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
   # rerun_workflow_job:
   #   name: Rerun ${{ github.run_id }}
   #   runs-on: small-runner
