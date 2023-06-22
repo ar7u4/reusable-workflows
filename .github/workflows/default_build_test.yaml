@@ -127,7 +127,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           github-token: ${{ secrets.github-token }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE}}
+          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
 
       - name: Login to Amazon ECR
         id: login-ecr
