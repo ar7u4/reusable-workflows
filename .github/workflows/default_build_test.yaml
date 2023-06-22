@@ -37,7 +37,11 @@ on:
         required: true
       dockerhub-token:
         required: true
-
+      github-token:
+        required: true
+      gitleaks-license:
+        required: true
+      
 env:
   maxAttempts: 3
   rerunFailedOnly: false
@@ -114,6 +118,12 @@ jobs:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ secrets.aws-region }}
+      
+      - name: Secrets leak prevention
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE}}
 
       - name: Login to Amazon ECR
         id: login-ecr
