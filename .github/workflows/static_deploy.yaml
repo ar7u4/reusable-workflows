@@ -115,6 +115,12 @@ jobs:
         run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
+      
+      - name: Copy from Archive
+        if: github.repository	== 'SwipeStoxGmbH/naga-china-app'
+        run: |
+          aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
+          tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
         if: github.repository	== 'SwipeStoxGmbH/web-trader'
@@ -168,6 +174,23 @@ jobs:
           for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
           done
+
+      - name: Deploy and Invalidate CF
+        if: github.repository == 'SwipeStoxGmbH/admin-tool-v3'
+        shell:  bash {0}
+        run: |
+          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+  
+          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
+            aws s3 sync --acl public-read ./build/staging/ s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 cp --acl public-read --cache-control=\"max-age=0, no-cache, no-store\" ./build/staging/index.html s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 cp robots.txt s3://${DEPLOY_BUCKETS_ARRAY[i]}/ --acl public-read
+          done
+
+           for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
+          done    
 
       - name: Create Git Tag 
         uses: rickstaa/action-create-tag@v1
