@@ -183,7 +183,7 @@ jobs:
           CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
   
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
-            aws s3 sync --acl public-read ./build/staging/ s3://${DEPLOY_BUCKETS_ARRAY[i]}/
+            aws s3 sync --acl public-read ./build/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]}/
             aws s3 cp --acl public-read --cache-control=\"max-age=0, no-cache, no-store\" ./build/staging/index.html s3://${DEPLOY_BUCKETS_ARRAY[i]}/
             aws s3 cp robots.txt s3://${DEPLOY_BUCKETS_ARRAY[i]}/ --acl public-read
           done
