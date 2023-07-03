@@ -176,7 +176,7 @@ jobs:
           done
 
       - name: Deploy and Invalidate CF
-        if: github.repository == 'SwipeStoxGmbH/admin-tool-v3'
+        if: github.repository == 'SwipeStoxGmbH/naga-china-app'
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
