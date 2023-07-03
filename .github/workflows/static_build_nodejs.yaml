@@ -107,18 +107,17 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
 
-      # - name: Build App
-      #  if: github.repository	== 'SwipeStoxGmbH/web-trader'
-      #   run: |
-      #     mkdir -p ~/.npm-global/lib
-      #     npm install -g npm@7.3.0
-      #     npm ci
-      #     CI=false npm run build
-      #     mv build dev_build
-      #     REACT_APP_ENV=production CI=false npm run build
-      #     mv build production_build
-      #     mkdir build; mv dev_build build/dev; mv production_build build/production
-      #     ls build
+      - name: Build App
+        if: github.repository	== 'SwipeStoxGmbH/naga-china-app'
+        run: |
+          mkdir -p ~/.npm-global/lib
+          npm install
+          npm ci
+          CI=false npm run build
+          mv build dev_build
+          REACT_APP_ENV=production CI=false npm run build
+          mv build production_build
+          mkdir build; mv dev_build build/dev; mv production_build build/production
 
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/naga-invest-markets'
