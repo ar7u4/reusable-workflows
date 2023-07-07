@@ -125,28 +125,14 @@ jobs:
           ls build
 
       - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/backoffice'
+        if: github.repository	== 'SwipeStoxGmbH/naga-china-app'
         run: |
-          mkdir -p ~/.npm-global
-          npm install -g gulp-cli gulp bower
+          mkdir -p ~/.npm-global/lib
           npm install
-          bower install
-          gulp build --env=dev
-          mv dist dev_build
-          gulp build --env=prod
-          mv dist production_build
-          mkdir build; mv dev_build build/dev; mv production_build build/production
-          ls build
-
-      - name: Build App
-        if: github.repository == 'SwipeStoxGmbH/admin-tool'
-        run: |
-          mkdir ~/.npm-global
-          npm install
-          rm -rf dev_build production_build build
-          npm run build
+          npm ci
+          CI=false npm run build
           mv build dev_build
-          REACT_APP_ENV=production npm run build
+          REACT_APP_ENV=production CI=false npm run build
           mv build production_build
           mkdir build; mv dev_build build/dev; mv production_build build/production
 
