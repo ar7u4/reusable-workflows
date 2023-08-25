@@ -122,6 +122,7 @@ jobs:
           mv build production_build
           mkdir build; mv production_build build/production
           ls build
+          ls build/production
 
       - name: Archive
         run: |
