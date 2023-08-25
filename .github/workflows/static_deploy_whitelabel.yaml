@@ -7,27 +7,31 @@ on:
       SLACK_PROD_DEPLOY_CHANNEL_ID:
         type: string
         required: true
-        description: '#gh-deploy-production ID'
+        description: '#gh-deploy-dev ID'
       CF_DISTRIBUTION_IDS:
         type: string
         required: true
-        description: 'CF Distros'
+        description: 'multiline string of CF Distros'
       CF_INVALIDATION_PATHS:
         type: string
         required: true
         description: 'CF invalidation paths'
+      ARCHIVE_BUCKET:
+        type: string
+        required: true
+        description: 'archive bucket'
       DEPLOY_BUCKETS:
         type: string
         required: true
         description: 'multiline string of deployment buckets'
+      DEPLOY_BUCKET_START_INDEX:
+        type: string
+        required: true
+        description: 'starting index for NA-* builds'
       SERVICE_NAME:
         type: string
         required: true
         description: 'service name'
-      JOB_TAG:
-        type: string
-        required: true
-        description: 'Job tag to be applied on production'
     secrets:
       slack-bot-token:
         required: true
@@ -43,16 +47,18 @@ on:
         required: true
 
 jobs:  
-  deploy_production:
+  deploy_dev:
     runs-on: small-runner
     outputs:
-      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-production.outputs.message_id }}
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
+      TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
       
     steps:
       - name: Set environment variables
         id: envs 
         run: |
+          TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
@@ -64,19 +70,22 @@ jobs:
           password: ${{ secrets.dockerhub-token }}
 
       - name: Notify Slack of Deploy
-        id: gh-deploy-production
+        id: gh-deploy-dev
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           status: |
-            Deploying service on PRODUCTION
+            Deploying service on DEV
 
-            - Job Tag: ${{ inputs.JOB_TAG }}
+            - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: 0037FF
         env:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
  
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -90,11 +99,13 @@ jobs:
         uses: unfor19/install-aws-cli-action@master
 
       # - name: Copy from Archive
+      #   if: github.repository	== 'SwipeStoxGmbH/web-trader'
       #   run: |
-      #     aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ inputs.JOB_TAG }}.tar.gz /tmp/${{ inputs.JOB_TAG }}.tar.gz
-      #     tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./build
+      #     aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
+      #     tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
+        if: github.repository	== 'SwipeStoxGmbH/web-trader'
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
@@ -112,6 +123,12 @@ jobs:
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
           done
 
+      - name: Create Git Tag 
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ env.TAG }}
+          message: ${{ env.TAG }}
+
       - name: Notify Slack of Success
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
@@ -119,7 +136,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
           status: |
-            Service Deployed on Production
+            Service Deployed on DEV
 
             - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
@@ -135,7 +152,7 @@ jobs:
           channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
           status: |
-            Service Production Deployment Failed
+            Service DEV Deployment Failed
 
             - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
