@@ -94,7 +94,7 @@ jobs:
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@master
 
-      # - name: Copy from Archive
+      # - name: Copy from git a
       #   if: github.repository	== 'SwipeStoxGmbH/web-trader'
       #   run: |
       #     aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
