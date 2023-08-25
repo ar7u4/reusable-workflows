@@ -16,10 +16,6 @@ on:
         type: string
         required: true
         description: 'CF invalidation paths'
-      ARCHIVE_BUCKET:
-        type: string
-        required: true
-        description: 'archive bucket'
       DEPLOY_BUCKETS:
         type: string
         required: true
