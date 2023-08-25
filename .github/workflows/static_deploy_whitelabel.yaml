@@ -16,6 +16,10 @@ on:
         type: string
         required: true
         description: 'CF invalidation paths'
+      ARCHIVE_BUCKET:
+          type: string
+          required: true
+          description: 'archive bucket'
       DEPLOY_BUCKETS:
         type: string
         required: true
@@ -94,11 +98,11 @@ jobs:
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@master
 
-      # - name: Copy from git a
-      #   if: github.repository	== 'SwipeStoxGmbH/web-trader'
-      #   run: |
-      #     aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
-      #     tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
+      - name: Copy from git archive
+        if: github.repository	== 'SwipeStoxGmbH/web-trader'
+        run: |
+          aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
+          tar xvzf /tmp/${{ env.TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
         if: github.repository	== 'SwipeStoxGmbH/web-trader'

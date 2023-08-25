@@ -24,6 +24,10 @@ on:
         type: string
         required: true
         description: 'custom node registry'
+      ARCHIVE_BUCKET:
+        type: string
+        required: true
+        description: 'archive bucket'
       GENERATE_SOURCEMAP:
         type: string
         required: true
@@ -119,10 +123,10 @@ jobs:
           mkdir build; mv production_build build/production
           ls build
 
-      # - name: Archive
-      #   run: |
-      #     tar cvzf ${{ env.TAG }}.tar.gz ./build
-      #     aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
+      - name: Archive
+        run: |
+          tar cvzf ${{ env.TAG }}.tar.gz ./build
+          aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
 
       - name: Notify Slack of Success 
         if: success()
