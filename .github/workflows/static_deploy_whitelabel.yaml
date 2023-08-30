@@ -113,10 +113,10 @@ jobs:
 
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
             aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
-            aws s3 sync ./build/production/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
-            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
-            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
-            aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+            aws s3 sync ./build/production/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }}
+            aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/xml' s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
           done
 
           for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
