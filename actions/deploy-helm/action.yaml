@@ -23,7 +23,8 @@ runs:
   steps:
     - name: Update image tag in deployment 
       run: |
-        for service in ${{ inputs.SERVICES }}; do
+        SERVICES_ARRAY=${{ inputs.SERVICES }}
+        for service in ${{ inputs.SERVICES_ARRAY }}; do
           sed -i "s/tag: .*/tag: ${{ inputs.TAG }}/g" "${{ inputs.PATH }}/$service/values.yaml"
         done
 
