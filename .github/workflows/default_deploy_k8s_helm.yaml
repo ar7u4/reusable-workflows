@@ -89,7 +89,7 @@ jobs:
 
       # Deploy new image in ArgoCD 
       - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deplo-helmy@master
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy-helm@master
         with:
           TAG: ${{ inputs.TAG }}
           SERVICES: ${{ inputs.SERVICES }}
