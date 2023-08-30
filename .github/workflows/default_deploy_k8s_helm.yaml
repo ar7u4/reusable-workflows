@@ -8,10 +8,6 @@ on:
         type: string
         required: true
         description: '#gh-deploy-dev ID'
-      TAG:
-        type: string
-        required: true
-        description: 'Image Tag'
       SERVICES:
         type: string
         required: true
@@ -91,7 +87,7 @@ jobs:
       - name: Deploy
         uses: SwipeStoxGmbH/reusable-workflows/actions/deploy-helm@master
         with:
-          TAG: ${{ inputs.TAG }}
+          TAG: ${{ env.TAG }}
           SERVICES: ${{ inputs.SERVICES }}
           PATH: ${{ inputs.PATH }}
           GIT_USER: ${{ secrets.git-push-user }}
