@@ -1,0 +1,35 @@
+name: 'Deploy using helm and ArgoCD'
+description: 'In-cluster deployment'
+
+inputs:
+  TAG:
+    description: 'Image tag that will be deployed'
+    required: true
+  SERVICES:
+    description: 'Array of service names'
+    required: true
+  PATH:
+    description: 'Path to repository'
+    required: true
+  GIT_USER:
+    description: 'GitHub user allow for commit'
+    required: true
+  GIT_EMAIL:
+    description: 'GitHub user email allow for commit'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Update image tag in deployment 
+      run: |
+        for service in ${{ inputs.SERVICES }}; do
+          sed -i "s/tag: .*/tag: ${{ inputs.TAG }}/g" "${{ inputs.PATH }}/$service/values.yaml"
+        done
+
+    - name: Commit changes
+      run: |
+        git config user.name ${{ inputs.GIT_USER }}
+        git config user.email ${{ inputs.GIT_PASS }}
+        git commit -m "Update image tag to ${{ inputs.TAG }}"
+        git push

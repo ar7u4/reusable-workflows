@@ -1,0 +1,146 @@
+name: "Deploy to dev Helm"
+
+on:
+  workflow_call:
+
+    inputs:
+      SLACK_DEV_DEPLOY_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-deploy-dev ID'
+      TAG:
+        type: string
+        required: true
+        description: 'Image Tag'
+      SERVICES:
+        type: string
+        required: true
+        description: 'Array of services which need to be deployed'
+      PATH:
+        type: string
+        required: true
+        description: 'Path to services root folder'
+      CF_DISTRIBUTION_ID:
+        type: string
+        required: true
+        description: 'CloudFront distribution ID'
+      CF_INVALIDATION_PATHS:
+        type: string
+        required: true
+        description: 'CloudFront invalidations paths'
+    secrets:
+      slack-bot-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      dockerhub-username:
+        required: true
+      dockerhub-token:
+        required: true
+      git-push-user:
+        required: true
+      git-push-email:
+        required: true
+
+jobs:  
+  deploy_dev:
+    runs-on: small-runner
+    outputs:
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
+      TAG: ${{ env.TAG }}
+      GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
+      
+    steps:
+      - name: Set environment variables
+        id: envs 
+        run: |
+          TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`
+          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
+          echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.dockerhub-username }}
+          password: ${{ secrets.dockerhub-token }}
+
+      - name: Notify Slack of Deploy
+        id: gh-deploy-dev
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          status: |
+            Deploying Image on DEV
+
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: 0037FF
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Deploy new image in ArgoCD 
+      - name: Deploy
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deplo-helmy@master
+        with:
+          TAG: ${{ inputs.TAG }}
+          SERVICES: ${{ inputs.SERVICES }}
+          PATH: ${{ inputs.PATH }}
+          GIT_USER: ${{ secrets.git-push-user }}
+          GIT_EMAIL: ${{ secrets.git-push-email }}
+
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v1
+        if: ${{ inputs.CF_DISTRIBUTION_ID != '' && inputs.CF_INVALIDATION_PATHS != '' }}
+        env:
+          DISTRIBUTION: ${{ inputs.CF_DISTRIBUTION_ID }}
+          PATHS: ${{ inputs.CF_INVALIDATION_PATHS }}
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+
+      # - name: Create Git Tag 
+      #   uses: rickstaa/action-create-tag@v1
+      #   with:
+      #     tag: ${{ env.TAG }}
+      #     message: ${{ env.TAG }}
+
+      - name: Notify Slack of Success
+        if: success()
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
+          status: |
+            Image Deployed on DEV
+
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+      - name: Notify Slack of Failure
+        if: failure()
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
+          status: |
+            Image DEV Deployment Failed
+
+            - Image Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
