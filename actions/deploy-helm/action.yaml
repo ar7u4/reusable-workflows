@@ -21,6 +21,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Clone services repository
+      run: git clone ${{ inputs.REPO }}
+
     - name: Update image tag in deployment 
       shell: bash
       run: |
