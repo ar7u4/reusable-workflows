@@ -86,6 +86,14 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+      
+      - name: Configure Git
+        run: |
+          git config user.name "${{ inputs.GIT_USER }}"
+          git config user.email "${{ inputs.GIT_EMAIL }}"
+        env:
+          GIT_USER: ${{ secrets.git-push-user }}
+          GIT_EMAIL: ${{ secrets.git-push-email }}
 
       # Deploy new image in ArgoCD 
       - name: Deploy

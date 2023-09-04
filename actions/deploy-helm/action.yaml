@@ -14,12 +14,6 @@ inputs:
   REPO:
     description: 'Repository with services values files'
     required: true
-  GIT_USER:
-    description: 'GitHub user allow for commit'
-    required: true
-  GIT_EMAIL:
-    description: 'GitHub user email allow for commit'
-    required: true
 
 runs:
   using: "composite"
@@ -27,10 +21,7 @@ runs:
 
     - name: Clone services repository
       shell: bash
-      run: |
-        git config user.name ${{ inputs.GIT_USER }}
-        git config user.email ${{ inputs.GIT_EMAIL }}
-        git clone ${{ inputs.REPO }}
+      run: git clone ${{ inputs.REPO }}
 
     - name: Update image tag in deployment 
       shell: bash
@@ -43,5 +34,8 @@ runs:
     - name: Commit changes
       shell: bash
       run: |
+        cd ${{ inputs.PATH }}
+        git pull
+        git add .
         git commit -m "Update image tag to ${{ inputs.TAG }}"
         git push
