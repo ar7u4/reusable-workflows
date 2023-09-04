@@ -26,6 +26,7 @@ runs:
   steps:
 
     - name: Clone services repository
+      shell: bash
       run: git clone ${{ inputs.REPO }}
 
     - name: Update image tag in deployment 
