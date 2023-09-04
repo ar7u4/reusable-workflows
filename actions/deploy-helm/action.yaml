@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         SERVICES_ARRAY=${{ inputs.SERVICES }}
-        for service in ${{ inputs.SERVICES_ARRAY }}; do
+        for service in ${{ SERVICES_ARRAY }}; do
           sed -i "s/tag: .*/tag: ${{ inputs.TAG }}/g" "${{ inputs.PATH }}/$service/values.yaml"
         done
 
