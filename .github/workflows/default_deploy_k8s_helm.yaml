@@ -91,7 +91,6 @@ jobs:
         run: |
           git config user.name "${{ inputs.GIT_USER }}"
           git config user.email "${{ inputs.GIT_EMAIL }}"
-          echo "USER $GIT_USER and EMAIL $GIT_EMAIL"
         env:
           GIT_USER: ${{ secrets.git-push-user }}
           GIT_EMAIL: ${{ secrets.git-push-email }}
