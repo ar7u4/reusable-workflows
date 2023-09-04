@@ -16,6 +16,10 @@ on:
         type: string
         required: true
         description: 'Path to services root folder'
+      REPO:
+        type: string
+        required: true
+        description: 'Repository where services values are located'
       CF_DISTRIBUTION_ID:
         type: string
         required: true
@@ -90,6 +94,7 @@ jobs:
           TAG: ${{ env.TAG }}
           SERVICES: ${{ inputs.SERVICES }}
           PATH: ${{ inputs.PATH }}
+          REPO: ${{ inputs.REPO }}
           GIT_USER: ${{ secrets.git-push-user }}
           GIT_EMAIL: ${{ secrets.git-push-email }}
 

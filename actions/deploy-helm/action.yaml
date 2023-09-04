@@ -9,7 +9,10 @@ inputs:
     description: 'Array of service names'
     required: true
   PATH:
-    description: 'Path to repository'
+    description: 'Path in repository'
+    required: true
+  REPO:
+    description: 'Repository with services values files'
     required: true
   GIT_USER:
     description: 'GitHub user allow for commit'
