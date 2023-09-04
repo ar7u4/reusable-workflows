@@ -27,7 +27,10 @@ runs:
 
     - name: Clone services repository
       shell: bash
-      run: git clone ${{ inputs.REPO }}
+      run: |
+        git config user.name ${{ inputs.GIT_USER }}
+        git config user.email ${{ inputs.GIT_EMAIL }}
+        git clone ${{ inputs.REPO }}
 
     - name: Update image tag in deployment 
       shell: bash
@@ -40,7 +43,5 @@ runs:
     - name: Commit changes
       shell: bash
       run: |
-        git config user.name ${{ inputs.GIT_USER }}
-        git config user.email ${{ inputs.GIT_PASS }}
         git commit -m "Update image tag to ${{ inputs.TAG }}"
         git push
