@@ -4,6 +4,10 @@ on:
   workflow_call:
 
     inputs:
+      BUILD_ENVIRONMENT:
+        type: string
+        required: true
+        description: 'set environment name to load from'
       SLACK_BUILD_CHANNEL_ID:
         type: string
         required: true
@@ -20,10 +24,6 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-      ENVIRONMENT:
-        type: string
-        required: true
-        description: "Environment for build"
 
     secrets:
       slack-bot-token:
@@ -46,10 +46,6 @@ jobs:
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
 
-    strategy:
-      matrix:
-        env: ${{ inputs.ENVIRONMENT }}
-
     steps:
       - name: Set environment variables
         run: |
@@ -58,8 +54,7 @@ jobs:
           echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT=${{ matrix.environment }}" >> $GITHUB_ENV
-      
+          
       - name: Expose github environment as shell variables
         env:
          SECRETS_CONTEXT: ${{ toJson(secrets) }}
@@ -130,14 +125,13 @@ jobs:
       - name: Build distribution
         shell: bash
         run: |
-            path="build_${{ matrix.env }}"
-            ./build.sh --path "$path" --env "${{ matrix.env }}"
+            ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
         
       - name: Copy build to folder
         shell: bash
         run: |
-          mkdir build 
-          mv build_${{ matrix.env }} build/${{ matrix.env }}
+          mkdir dist 
+          mv build_${{ inputs.BUILD_ENVIRONMENT }} dist/${{ inputs.BUILD_ENVIRONMENT }}
 
       - name: Build and push image
         uses: docker/build-push-action@v3
