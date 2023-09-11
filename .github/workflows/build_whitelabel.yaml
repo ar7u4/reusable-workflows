@@ -28,6 +28,18 @@ on:
         type: string
         required: true
         description: 'S3 temp directory for artifact push'
+      NODE_VERSION:
+        type: string
+        required: true
+        description: 'node version'
+      NODE_OPTIONS:
+        type: string
+        required: true
+        description: 'node options'
+      NODE_REGISTRY_URL:
+        type: string
+        required: true
+        description: 'custom node registry'
     secrets:
       slack-bot-token:
         required: true
@@ -36,6 +48,8 @@ on:
       aws-secret-access-key:
         required: true
       aws-region:
+        required: true
+      naga-npm-token:
         required: true
       dockerhub-username:
         required: true
@@ -125,7 +139,15 @@ jobs:
         with:
           version: latest
           endpoint: builders
-        
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+          registry-url: ${{ inputs.NODE_REGISTRY_URL }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
+    
       - name: Build distribution
         shell: bash
         run: |
