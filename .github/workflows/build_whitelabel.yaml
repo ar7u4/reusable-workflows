@@ -153,15 +153,9 @@ jobs:
         run: |
           ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
         
-      - name: Copy build to folder
-        shell: bash
-        run: |
-          mkdir -p dist 
-          mv build_${{ inputs.BUILD_ENVIRONMENT }} dist/${{ inputs.BUILD_ENVIRONMENT }}
-
       - name: Sync to S3
         run: |
-          aws s3 sync ./dist/${{ inputs.BUILD_ENVIRONMENT }} s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
+          aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
       
       - name: Notify Slack of Success
         if: success()
