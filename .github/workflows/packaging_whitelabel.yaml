@@ -4,10 +4,6 @@ on:
   workflow_call:
 
     inputs:
-      BUILD_ENVIRONMENT:
-        type: string
-        required: true
-        description: 'set environment name to load from'
       SLACK_BUILD_CHANNEL_ID:
         type: string
         required: true
