@@ -59,7 +59,17 @@ jobs:
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
           echo "ENVIRONMENT=${{ matrix.environment }}" >> $GITHUB_ENV
-
+      
+      - name: Expose github environment as shell variables
+        env:
+         SECRETS_CONTEXT: ${{ toJson(secrets) }}
+         VARS_CONTEXT: ${{ toJson(vars) }}
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          to_envs() { jq -r "to_entries[] | \"\(.key)<<$EOF\n\(.value)\n$EOF\n\""; }
+          echo "$VARS_CONTEXT" | to_envs >> $GITHUB_ENV
+          echo "$SECRETS_CONTEXT" | to_envs >> $GITHUB_ENV
+  
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -129,12 +139,11 @@ jobs:
           mkdir build 
           mv build_${{ matrix.env }} build/${{ matrix.env }}
 
-
       - name: Build and push image
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile_new
           push: true
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
