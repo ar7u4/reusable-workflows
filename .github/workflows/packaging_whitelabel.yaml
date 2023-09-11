@@ -24,6 +24,10 @@ on:
         type: string
         required: true
         description: 'S3 temp directory for push'
+      S3_ARCH_DIR:
+        type: string
+        required: true
+        description: 'S3 archive directory for store'
     secrets:
       slack-bot-token:
         required: true
@@ -132,7 +136,7 @@ jobs:
       - name: Archive to S3
         run: |
           tar cvzf ${{ env.TAG }}.tar.gz ./dist
-          aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz
+          aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.S3_ARCH_DIR }}/${{ env.TAG }}.tar.gz
 
       - name: S3 cleanup
         run: |
