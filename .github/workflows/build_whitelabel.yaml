@@ -24,7 +24,10 @@ on:
         type: string
         required: true
         description: 'Caching Elastic Container Repository of the service'
-
+      S3_TEMP_DIR:
+        type: string
+        required: true
+        description: 'S3 temp directory for artifact push'
     secrets:
       slack-bot-token:
         required: true
@@ -125,7 +128,7 @@ jobs:
       - name: Build distribution
         shell: bash
         run: |
-            ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
+          ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
         
       - name: Copy build to folder
         shell: bash
@@ -133,19 +136,10 @@ jobs:
           mkdir dist 
           mv build_${{ inputs.BUILD_ENVIRONMENT }} dist/${{ inputs.BUILD_ENVIRONMENT }}
 
-      - name: Build and push image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./Dockerfile_new
-          push: true
-          # caching to ECR seems not supported yet
-          # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
-          # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.TAG }}
+      - name: Sync to S3
+        run: |
+          aws s3 sync ./dist/${{ inputs.BUILD_ENVIRONMENT }} s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
       
-
       - name: Notify Slack of Success
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
