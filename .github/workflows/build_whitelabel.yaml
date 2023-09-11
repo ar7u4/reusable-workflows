@@ -45,6 +45,7 @@ on:
 jobs:
   default_build:
     runs-on: small-runner
+    environment: ${{ inputs.BUILD_ENVIRONMENT }}
     outputs:
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
