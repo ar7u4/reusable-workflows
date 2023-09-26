@@ -79,7 +79,7 @@ jobs:
       # SYNC from S3
       - name: Copy from S3
         run: |
-           aws s3 sync s3://${{ inputs.S3_TEMP_DIR}}/dist ./dist
+           aws s3 sync s3://${{ inputs.S3_TEMP_DIR}}/build ./build
         
       # Archive to S3
       - name: Archive to S3

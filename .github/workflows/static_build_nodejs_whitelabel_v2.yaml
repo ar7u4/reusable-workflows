@@ -137,7 +137,7 @@ jobs:
           
       - name: Sync to S3
         run: |
-            aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
+            aws s3 sync ./build s3://${{ inputs.S3_TEMP_DIR}}/build/${{ inputs.BUILD_ENVIRONMENT }} 
 
       - name: Notify Slack of Success 
         if: success()

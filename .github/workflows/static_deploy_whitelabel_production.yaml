@@ -1,0 +1,150 @@
+name: "Deploy to bucket"
+
+on:
+  workflow_call:
+
+    inputs:
+      SLACK_PROD_DEPLOY_CHANNEL_ID:
+        type: string
+        required: true
+        description: '#gh-deploy-production ID'
+      CF_DISTRIBUTION_IDS:
+        type: string
+        required: true
+        description: 'CF Distros'
+      CF_INVALIDATION_PATHS:
+        type: string
+        required: true
+        description: 'CF invalidation paths'
+      ARCHIVE_BUCKET:
+        type: string
+        required: true
+        description: 'archive bucket'
+      DEPLOY_BUCKETS:
+        type: string
+        required: true
+        description: 'multiline string of deployment buckets'
+      SERVICE_NAME:
+        type: string
+        required: true
+        description: 'service name'
+      JOB_TAG:
+        type: string
+        required: true
+        description: 'Job tag to be applied on production'
+    secrets:
+      slack-bot-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      dockerhub-username:
+        required: true
+      dockerhub-token:
+        required: true
+
+jobs:  
+  deploy_production:
+    runs-on: small-runner
+    outputs:
+      SLACK_MESSAGE_ID: ${{ steps.gh-deploy-production.outputs.message_id }}
+      GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
+      
+    steps:
+      - name: Set environment variables
+        id: envs 
+        run: |
+          echo "TAG=${GITHUB_REF##*/}-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+          echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
+          echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.dockerhub-username }}
+          password: ${{ secrets.dockerhub-token }}
+
+      - name: Notify Slack of Deploy
+        id: gh-deploy-production
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          status: |
+            Deploying service on PRODUCTION
+
+            - Job Tag: ${{ inputs.JOB_TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: 0037FF
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+ 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Install AWS cli
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Copy from Archive
+        run: |
+          aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ inputs.JOB_TAG }}.tar.gz /tmp/${{ inputs.JOB_TAG }}.tar.gz
+          tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./build
+
+      - name: Deploy and Invalidate CF
+        shell:  bash {0}
+        run: |
+          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+
+          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
+            [ ${DEPLOY_BUCKETS_ARRAY[i]} == "app.sxdev.io-20230925083923615900000001" ] && acl="private" || acl="public-read"
+            aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
+            aws s3 sync ./build/production/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+          done
+
+          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
+          done
+
+      - name: Notify Slack of Success
+        if: success()
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
+          status: |
+            Service Deployed on Production
+
+            - Job Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: good
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
+
+      - name: Notify Slack of Failure
+        if: failure()
+        uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
+        with:
+          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
+          status: |
+            Service Production Deployment Failed
+
+            - Job Tag: ${{ env.TAG }}
+            - Actor: ${{ env.GITHUB_ACTOR }}
+            - Job URL: ${{ env.JOB_URL }}
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }} 
