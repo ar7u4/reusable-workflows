@@ -99,6 +99,7 @@ jobs:
           tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
+        if: startsWith(${{ inputs.JOB_TAG }}, 'master')
         shell:  bash {0}
         run: |
           DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
@@ -113,6 +114,26 @@ jobs:
             aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
           done
 
+          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
+          done
+      
+      - name: Deploy canary and Invalidate CF
+        if: startsWith(${{ inputs.JOB_TAG }}, 'canary')
+        shell:  bash {0}
+        run: |
+          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
+          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+    
+          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
+            [ ${DEPLOY_BUCKETS_ARRAY[i]} == "app.sxdev.io-20230925083923615900000001" ] && acl="private" || acl="public-read"
+            aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
+            aws s3 sync ./build/canary-prod/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
+            aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
+          done
+    
           for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
             aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
           done
