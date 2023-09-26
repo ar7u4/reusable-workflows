@@ -84,7 +84,7 @@ jobs:
       # Archive to S3
       - name: Archive to S3
         run: |
-          tar cvzf ${{ env.TAG }}.tar.gz ./dist
+          tar cvzf ${{ env.TAG }}.tar.gz ./build
           aws s3 cp ${{ env.TAG }}.tar.gz s3://${{ inputs.S3_ARCH_DIR }}/${{ env.TAG }}.tar.gz
 
       - name: S3 cleanup
