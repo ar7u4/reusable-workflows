@@ -1,4 +1,4 @@
-name: "Deploy to bucket"
+name: "Canary deploy to bucket"
 
 on:
   workflow_call:
@@ -8,10 +8,10 @@ on:
         type: string
         required: true
         description: '#gh-deploy-dev ID'
-      CF_DISTRIBUTION_IDS:
+      CANARY_CF_DISTRIBUTION_ID:
         type: string
         required: true
-        description: 'multiline string of CF Distros'
+        description: 'Canary CF distribution'
       CF_INVALIDATION_PATHS:
         type: string
         required: true
@@ -20,14 +20,10 @@ on:
         type: string
         required: true
         description: 'archive bucket'
-      DEPLOY_BUCKETS:
+      CANARY_DEPLOY_BUCKET:
         type: string
         required: true
-        description: 'multiline string of deployment buckets'
-      DEPLOY_BUCKET_START_INDEX:
-        type: string
-        required: true
-        description: 'starting index for NA-* builds'
+        description: 'canary deploy bucket'
       SERVICE_NAME:
         type: string
         required: true
@@ -73,9 +69,9 @@ jobs:
         id: gh-deploy-dev
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: |
-            Deploying service on DEV
+            Deploying Canary on DEV
 
             - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
@@ -98,7 +94,7 @@ jobs:
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@master
 
-      - name: Copy from git archive
+      - name: Copy from Archive
         run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ env.TAG }}.tar.gz /tmp/${{ env.TAG }}.tar.gz
           tar xvzf /tmp/${{ env.TAG }}.tar.gz ./dist
@@ -106,30 +102,27 @@ jobs:
       - name: Deploy and Invalidate CF
         shell:  bash {0}
         run: |
-          DEPLOY_BUCKETS_ARRAY=${{ inputs.DEPLOY_BUCKETS }}
-          CF_DISTRIBUTIONS_ARRAY=${{ inputs.CF_DISTRIBUTION_IDS }}
+          aws s3 rm s3://${{ inputs.CANARY_DEPLOY_BUCKET }} --region ${{ secrets.aws-region }} --recursive
+          aws s3 sync ./dist/canary-dev/ s3://${{ inputs.CANARY_DEPLOY_BUCKET }} --region ${{ secrets.aws-region }} --acl public-read
+          aws s3 cp --content-type 'application/json' --acl public-read s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/apple-app-site-association s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/apple-app-site-association --metadata-directive REPLACE
+          aws s3 cp --content-type 'application/json' --acl public-read s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/.well-known/assetlinks.json s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/.well-known/assetlinks.json --metadata-directive REPLACE
+          aws s3 cp --content-type 'application/xml' --acl public-read s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/sitemap.xml s3://${{ inputs.CANARY_DEPLOY_BUCKET }}/sitemap.xml --metadata-directive REPLACE
+          aws cloudfront create-invalidation --distribution-id ${{ inputs.CANARY_CF_DISTRIBUTION_ID }} --paths '/*'
 
-          for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
-            [ ${DEPLOY_BUCKETS_ARRAY[i]} == "app.sxdev.io-20230925083923615900000001" ] && acl="private" || acl="public-read"
-            aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
-            aws s3 sync ./dist/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }}
-            aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
-            aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
-            aws s3 cp --content-type 'application/xml' s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
-          done
-
-          for i in "${!CF_DISTRIBUTIONS_ARRAY[@]}"; do
-            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTIONS_ARRAY[i]} --paths '/*'
-          done
+      # - name: Create Git Tag 
+      #   uses: rickstaa/action-create-tag@v1
+      #   with:
+      #     tag: ${{ env.TAG }}
+      #     message: ${{ env.TAG }}
 
       - name: Notify Slack of Success
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
           status: |
-            Service Deployed on DEV
+            Canary Deployed on DEV
 
             - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
@@ -142,10 +135,10 @@ jobs:
         if: failure()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
-          message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
+          message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
           status: |
-            Service DEV Deployment Failed
+            Canary DEV Deployment Failed
 
             - Job Tag: ${{ env.TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
