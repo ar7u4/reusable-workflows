@@ -73,7 +73,7 @@ jobs:
         id: gh-deploy-dev
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: |
             Deploying service on DEV
 
@@ -126,7 +126,7 @@ jobs:
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
           status: |
             Service Deployed on DEV
@@ -142,7 +142,7 @@ jobs:
         if: failure()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel_id: ${{ inputs.SLACK_PROD_DEPLOY_CHANNEL_ID }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-production.outputs.message_id }}
           status: |
             Service DEV Deployment Failed
