@@ -151,12 +151,26 @@ jobs:
       - name: Build distribution
         shell: bash
         run: |
-          ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
-        
+          if [ "${{ github.repository }}" == "SwipeStoxGmbH/web-trader" ]; then
+            if [ "${{ inputs.BUILD_ENVIRONMENT }}" == "dev" ]; then
+                ./build.sh --env "development"
+            else
+                ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
+            fi
+          else
+            ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
+          fi
       - name: Sync to S3
         run: |
-          aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
-      
+          if [ "${{ github.repository }}" == "SwipeStoxGmbH/web-trader" ]; then
+            if [ "${{ inputs.BUILD_ENVIRONMENT }}" == "dev" ]; then
+            aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/development
+            else
+              aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
+            fi
+          else
+            aws s3 sync ./dist s3://${{ inputs.S3_TEMP_DIR}}/dist/${{ inputs.BUILD_ENVIRONMENT }} 
+          fi
       - name: Notify Slack of Success
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
