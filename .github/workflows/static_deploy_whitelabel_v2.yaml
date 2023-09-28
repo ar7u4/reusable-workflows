@@ -112,7 +112,7 @@ jobs:
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
             [ ${DEPLOY_BUCKETS_ARRAY[i]} == "app.sxdev.io-20230925083923615900000001" ] && acl="private" || acl="public-read"
             aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
-            aws s3 sync ./dist/development/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }}
+            aws s3 sync ./dist/dev/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }}
             aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
             aws s3 cp --content-type 'application/json' s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
             aws s3 cp --content-type 'application/xml' s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
