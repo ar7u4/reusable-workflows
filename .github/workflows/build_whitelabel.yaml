@@ -151,15 +151,7 @@ jobs:
       - name: Build distribution
         shell: bash
         run: |
-          if [ "${{ github.repository }}" == "SwipeStoxGmbH/web-trader" ]; then
-            if [ "${{ inputs.BUILD_ENVIRONMENT }}" == "dev" ]; then
-                ./build.sh --env "development"
-            else
-                ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
-            fi
-          else
             ./build.sh --env "${{ inputs.BUILD_ENVIRONMENT }}"
-          fi
       - name: Sync to S3
         run: |
           if [ "${{ github.repository }}" == "SwipeStoxGmbH/web-trader" ]; then
