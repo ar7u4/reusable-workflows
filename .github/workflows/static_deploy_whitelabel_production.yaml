@@ -96,7 +96,7 @@ jobs:
       - name: Copy from Archive
         run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ inputs.JOB_TAG }}.tar.gz /tmp/${{ inputs.JOB_TAG }}.tar.gz
-          tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./build
+          tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./dist
 
       - name: Deploy and Invalidate CF
         if: startsWith(${{ inputs.JOB_TAG }}, 'master')
