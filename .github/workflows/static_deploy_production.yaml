@@ -96,7 +96,7 @@ jobs:
       - name: Copy from Archive
         run: |
           aws s3 cp s3://${{ inputs.ARCHIVE_BUCKET }}/${{ inputs.SERVICE_NAME }}/${{ inputs.JOB_TAG }}.tar.gz /tmp/${{ inputs.JOB_TAG }}.tar.gz
-          tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./dist
+          tar xvzf /tmp/${{ inputs.JOB_TAG }}.tar.gz ./build
 
       - name: Deploy and Invalidate CF
         shell:  bash {0}
@@ -106,7 +106,7 @@ jobs:
 
           for i in "${!DEPLOY_BUCKETS_ARRAY[@]}"; do
             aws s3 rm s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --recursive
-            aws s3 sync ./dist/production/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
+            aws s3 sync ./build/production/ s3://${DEPLOY_BUCKETS_ARRAY[i]} --region ${{ secrets.aws-region }} --acl public-read
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association s3://${DEPLOY_BUCKETS_ARRAY[i]}/apple-app-site-association --metadata-directive REPLACE
             aws s3 cp --content-type 'application/json' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json s3://${DEPLOY_BUCKETS_ARRAY[i]}/.well-known/assetlinks.json --metadata-directive REPLACE
             aws s3 cp --content-type 'application/xml' --acl public-read s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml s3://${DEPLOY_BUCKETS_ARRAY[i]}/sitemap.xml --metadata-directive REPLACE
