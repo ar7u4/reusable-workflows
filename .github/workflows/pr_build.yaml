@@ -131,12 +131,13 @@ jobs:
       - name: Build App
         if: github.repository == 'SwipeStoxGmbH/admin-tool'
         run: |
-          mkdir ~/.npm-global
-          npm install
-          rm -rf dev_build build
-          npm run build
-          mv build dev_build
-          mkdir build; mv dev_build build/dev
+          mkdir -p ~/.npm-global 
+          rm -rf dev_build production_build build 
+          export CI=false
+          npm install 
+          REACT_APP_ENV=$BUILD_ENV npm run build
+          mkdir -p dist 
+          mv build/* dist/
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
