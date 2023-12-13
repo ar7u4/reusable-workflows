@@ -63,9 +63,10 @@ jobs:
         run: |
           RUN=pr-${{ github.event.number }}-${{ github.run_number }}
           TAG=pr-${{ github.event.number }}
+          IMAGE_TAG=pr-${{ github.event.number }}-${{ github.run_number }}
           echo "TAG=pr-${{ github.event.number }}" >> $GITHUB_ENV
-          echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "RUN=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_ENV
           echo "GITHUB_ACTOR=${GITHUB_ACTOR}" >> $GITHUB_ENV
           echo "JOB_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
@@ -110,7 +111,13 @@ jobs:
             else
               envsubst < $FILE > /tmp/envsubst || exit 1
             fi
+
             mv /tmp/envsubst $FILE || exit 1
+            if [[ -n ${PATTERN_2} ]] ; then
+              envsubst "${PATTERN_2}" < $FILE > /tmp/envsubst || exit 1
+              mv /tmp/envsubst $FILE || exit 1
+            fi
+
           done
         env:
           PATTERN: $TAG 
@@ -180,7 +187,7 @@ jobs:
             PR Deployed on DEV
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ env.TAG }}
+            - Image Tag: ${{ env.IMAGE_TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - PR URL: https://${{ env.TAG }}.${{ inputs.DOMAIN_INT }}
             - Job URL: ${{ env.JOB_URL }}
@@ -198,7 +205,7 @@ jobs:
             PR Deployment Failed 
 
             - Run: ${{ env.RUN }}
-            - Image Tag: ${{ env.TAG }}
+            - Image Tag: ${{ env.IMAGE_TAG }}
             - Actor: ${{ env.GITHUB_ACTOR }}
             - Job URL: ${{ env.JOB_URL }}
           color: danger
