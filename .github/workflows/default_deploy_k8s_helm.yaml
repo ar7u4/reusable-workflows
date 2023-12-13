@@ -87,13 +87,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Configure Git
+      - name: Set up Git
         run: |
-          git config user.name "${{ inputs.GIT_USER }}"
-          git config user.email "${{ inputs.GIT_EMAIL }}"
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Tag updater - Vagano"
         env:
-          GIT_USER: ${{ secrets.git-push-user }}
-          GIT_EMAIL: ${{ secrets.git-push-email }}
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
+
+
+      - name: Checkout services repo
+        uses: actions/checkout@v4
+        with:
+          repository: SwipeStoxGmbH/services
+          token: ${{ env.GH_PAT_SERVICES }}
+          ref: master
+          path: services
+  
+      - name: Make changes to the YAML file using yq
+        run: |
+          cd services/whitelabel/vagano/vagano-com-landing
+          yq eval -i '.image.tag = "${{ env.TAG }}"' values.yaml
+          git add values.yaml
+        env:
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
+  
+      - name: Commit changes
+        run: |
+          cd services
+          git config user.email "devops@naga.com"
+          git config user.name "GitHub Actions - Vagano"
+          git commit whitelabel/vagano/vagano-com-landing/values.yaml -m "Updated vagano-landing image tag to ${{ env.TAG }}"
+          git push
+        env:
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
 
       # Deploy new image in ArgoCD 
       - name: Deploy

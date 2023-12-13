@@ -2,6 +2,7 @@ name: "PR Build and Push"
 
 on:
   workflow_call:
+
     inputs:
       SLACK_BUILD_CHANNEL_ID:
         type: string
@@ -11,6 +12,14 @@ on:
         type: string
         required: true
         description: '#gh-build - Message ID'
+      NODE_VERSION:
+        type: string
+        required: true
+        description: 'node version'
+      NODE_REGISTRY_URL:
+        type: string
+        required: true
+        description: 'custom node registry'
       ECR_REPO:
         type: string
         required: true
@@ -28,21 +37,20 @@ on:
         required: true
       aws-region:
         required: true
+      naga-npm-token:
+        required: true
       dockerhub-username:
         required: true
       dockerhub-token:
         required: true
-      gh-aws-access-key-id:
-        required: true
-      gh-aws-secret-access-key:
-        required: true
-
+        
 jobs:
   pr_build:
     runs-on: small-runner
     outputs:
       TAG: ${{ env.TAG }}
       RUN: ${{ env.RUN }}
+      IMAGE_TAG: ${{ env.IMAGE_TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
       
     steps:
@@ -101,14 +109,34 @@ jobs:
         uses: SwipeStoxGmbH/reusable-workflows/actions/ecr-setup@master
         with:
           ECR_REPO: ${{ inputs.ECR_REPO }}
-      
-      - name: Setup JRE
-        uses: actions/setup-java@v3.6.0
+
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
-          distribution: temurin
-          java-version: 8
-          java-package: jre
-          cache: sbt
+          node-version: ${{ inputs.NODE_VERSION }}
+          registry-url: ${{ inputs.NODE_REGISTRY_URL }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.naga-npm-token }}
+
+      - name: Build App
+        if: github.repository == 'SwipeStoxGmbH/web-trader'
+        run: |
+          mkdir -p ~/.npm-global/lib
+          npm install -g npm@7.3.0
+          npm ci
+          CI=false REACT_APP_PR_BUILD=1 npm run build
+          mv build dev_build
+          mkdir build; mv dev_build build/dev
+
+      - name: Build App
+        if: github.repository == 'SwipeStoxGmbH/admin-tool'
+        run: |
+          mkdir ~/.npm-global
+          npm install
+          rm -rf dev_build build
+          npm run build
+          mv build dev_build
+          mkdir build; mv dev_build build/dev
 
       - name: Set up Docker Context for Buildx
         id: buildx-context
@@ -125,16 +153,13 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v3
         with:
-          build-args: |
-            AWS_ACCESS_KEY_ID=${{ secrets.gh-aws-access-key-id }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.gh-aws-secret-access-key }}
           context: .
           file: ./Dockerfile
           push: true
           # caching to ECR seems not supported yet
           # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache
           # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_CACHE_REPO }}:buildcache,mode=max
-          TAG: |
+          TAGs: |
             ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
       - name: Notify Slack of Success
