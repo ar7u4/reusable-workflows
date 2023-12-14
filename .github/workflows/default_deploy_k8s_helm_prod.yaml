@@ -1,4 +1,4 @@
-name: "Deploy to production Helm"
+name: "Deploy to production k8s"
 
 on:
   workflow_call:
@@ -16,18 +16,26 @@ on:
         type: string
         required: true
         description: 'Elastic Container Repository account ID'
+      NAMESPACE:
+        type: string
+        required: true
+        description: 'Namespace in the cluster'
+      KUSTOMIZE_OVERLAY:
+        type: string
+        required: true 
+        description: 'Path to Kustomize overlay'
+      KUSTOMIZE_ROOT:
+        type: string
+        required: true
+        description: 'Path to Kustomize root'
       IMAGE_TAG:
         type: string
         required: true
         description: 'Image tag to deploy'
-      SERVICES:
+      SERVICES_PATH:
         type: string
         required: true
-        description: 'Array of services which need to be deployed'
-      PATH:
-        type: string
-        required: true
-        description: 'Path to services root folder'
+        description: 'Path for service values in services repo'
       CF_DISTRIBUTION_ID:
         type: string
         required: true
@@ -48,10 +56,6 @@ on:
       dockerhub-username:
         required: true
       dockerhub-token:
-        required: true
-      git-push-user:
-        required: true
-      git-push-email:
         required: true
 
 jobs:  
@@ -123,15 +127,75 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Deploy
-        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy-helm@master
-        with:
-          TAG: ${{ inputs.IMAGE_TAG }}
-          SERVICES: ${{ inputs.SERVICES }}
-          PATH: ${{ inputs.PATH }}
-          GIT_USER: ${{ secrets.git-push-user }}
-          GIT_EMAIL: ${{ secrets.git-push-email }}
+      # This step causes issues when used as a composite action
+      # Therefore the Script is executed from the step directly
+      # This could be the subject of the next upgrade
+      - name: Inject image tag into files
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install gettext -y
+          FILES=(${{ inputs.KUSTOMIZE_ROOT }}/base/* ${{ inputs.KUSTOMIZE_OVERLAY }}/*)
+          for FILE in ${FILES[@]}; do
+            if [[ -n ${PATTERN} ]] ; then
+              envsubst "${PATTERN}" < $FILE > /tmp/envsubst || exit 1
+            else
+              envsubst < $FILE > /tmp/envsubst || exit 1
+            fi
+            mv /tmp/envsubst $FILE || exit 1
+          done
+        env:
+          PATTERN: $TAG
 
+      - name: Deploy
+        uses: SwipeStoxGmbH/reusable-workflows/actions/deploy@master
+        with:
+          NAMESPACE: ${{ inputs.NAMESPACE }}
+          KUSTOMIZE_OVERLAY: ${{ inputs.KUSTOMIZE_OVERLAY }}
+      
+      # Prepare for migration to services repo
+
+      - name: Set up Git
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Tag updater - NAGA"
+        env:
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
+  
+      - name: Checkout services repo
+        uses: actions/checkout@v4
+        with:
+          repository: SwipeStoxGmbH/services
+          token: ${{ env.GH_PAT_SERVICES }}
+          ref: master
+          path: services
+  
+      - name: Make changes to the YAML file using yq
+        run: |
+          SERVICES_PATH_ARRAY=${{ inputs.SERVICES_PATH }}
+          
+          for i in "${!SERVICES_PATH_ARRAY[@]}"; do
+            cd services/${SERVICES_PATH_ARRAY[i]}
+            yq eval -i '.image.tag = "${{ env.TAG }}"' values.yaml
+            git add values.yaml
+          done 
+        env:
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
+    
+      - name: Commit changes
+        run: |
+          cd services
+          git config user.email "devops@naga.com"
+          git config user.name "GitHub Actions - Naga"
+          SERVICES_PATH_ARRAY=${{ inputs.SERVICES_PATH }}
+              
+          for i in "${!SERVICES_PATH_ARRAY[@]}"; do
+            git commit ${SERVICES_PATH_ARRAY[i]}/values.yaml -m "Updated image tag to ${{ env.TAG }}"
+            git push
+          done
+        env:
+          GH_PAT: ${{ env.GH_PAT_SERVICES }}
+        
+      
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v1
         if: ${{ inputs.CF_DISTRIBUTION_ID != '' && inputs.CF_INVALIDATION_PATHS != '' }}
