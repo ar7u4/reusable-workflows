@@ -7,7 +7,7 @@ on:
       SLACK_BUILD_CHANNEL_ID:
         type: string
         required: true
-        description: '#nx-build - ID'
+        description: '#gh-build - ID'
       SLACK_BUILD_MESSAGE_ID:
         type: string
         required: true
@@ -36,7 +36,7 @@ on:
         
 jobs:
   default_build:
-    runs-on: small-runner-x
+    runs-on: small-runner
     outputs:
       TAG: ${{ env.TAG }}
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}

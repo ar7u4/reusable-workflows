@@ -4,10 +4,10 @@ on:
   workflow_call:
 
     inputs:
-      SLACK_DEV_DEPLOY_CHANNEL:
+      SLACK_DEV_DEPLOY_CHANNEL_ID:
         type: string
         required: true
-        description: '#gh-deploy-dev'
+        description: '#nx-builds-dev - iD'
       NAMESPACE:
         type: string
         required: true
@@ -44,7 +44,7 @@ on:
 
 jobs:  
   deploy_dev:
-    runs-on: small-runner
+    runs-on: small-runner-x
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
       TAG: ${{ env.TAG }}
@@ -69,7 +69,7 @@ jobs:
         id: gh-deploy-dev
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           status: |
             Deploying Image on DEV
 
@@ -129,7 +129,7 @@ jobs:
         if: success()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
           status: |
             Image Deployed on DEV
@@ -145,7 +145,7 @@ jobs:
         if: failure()
         uses: FlexCharge/github-action-slack-notify-build@f953c3ec8cd2f6f726a9a87bf87ac30cab0a1e19
         with:
-          channel: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL }}
+          channel_id: ${{ inputs.SLACK_DEV_DEPLOY_CHANNEL_ID }}
           message_id: ${{ steps.gh-deploy-dev.outputs.message_id }}
           status: |
             Image DEV Deployment Failed
