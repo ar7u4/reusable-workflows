@@ -44,7 +44,7 @@ on:
 
 jobs:  
   deploy_dev:
-    runs-on: small-runner-x
+    runs-on: nagax-landing-ssr
     outputs:
       SLACK_MESSAGE_ID: ${{ steps.gh-deploy-dev.outputs.message_id }}
       TAG: ${{ env.TAG }}
