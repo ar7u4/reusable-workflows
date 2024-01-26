@@ -73,10 +73,10 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
 
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4.1.1
  
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1.5.3
+        uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Install AWS cli
         id: install-aws-cli
@@ -102,7 +102,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2.4.1
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
           endpoint: builders
