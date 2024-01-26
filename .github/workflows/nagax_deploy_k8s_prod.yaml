@@ -56,7 +56,7 @@ on:
 
 jobs:  
   deploy_production:
-    runs-on: small-prod-runner-x
+    runs-on: nagax-landing-ssr-production
     outputs:
       GITHUB_ACTOR: ${{ env.GITHUB_ACTOR }}
 
